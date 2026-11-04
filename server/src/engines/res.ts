@@ -508,22 +508,6 @@ export function formatAttrValue(a: XmlAttr, r: Resolver): string {
   return attrValue(a, r);
 }
 
-let frameworkCache: ResTable | null | undefined;
-/** Framework resources (android:*) shipped with Apktool. Optional: everything works without it, just less readable. */
-export async function loadFramework(): Promise<ResTable | undefined> {
-  if (frameworkCache !== undefined) return frameworkCache ?? undefined;
-  try {
-    const { config } = await import('../config.js');
-    const { readEntry } = await import('./zip.js');
-    const path = await import('node:path');
-    const buf = await readEntry(path.join(config.toolsDir, 'aapt2', 'android-framework.jar'), 'resources.arsc');
-    frameworkCache = buf ? parseResTable(buf) : null;
-  } catch {
-    frameworkCache = null;
-  }
-  return frameworkCache ?? undefined;
-}
-
 export function frameworkAttrName(r: Resolver) {
   return (id: number) => {
     const e = r.framework?.entries.get(id >>> 0);

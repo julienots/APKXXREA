@@ -5,9 +5,11 @@ import path from 'node:path';
 import { DATA, MINIMAL, SETTINGS, hasSettings, makeZip, tmpFile } from './helpers.ts';
 
 const { inspectZip, readEntry, extractTo, ZipSafetyError } = await import('../src/engines/zip.ts');
-const { parseResTable, parseBinaryXml, toXmlText, loadFramework, frameworkAttrName } = await import('../src/engines/res.ts');
+const { parseResTable, parseBinaryXml, toXmlText, frameworkAttrName } = await import('../src/engines/res.ts');
+const { loadFramework } = await import('../src/engines/framework.ts');
 const { Dex, classRefs } = await import('../src/engines/dex.ts');
-const { pkcs7Certificates, inspectSignatures } = await import('../src/engines/signature.ts');
+const { pkcs7Certificates } = await import('../src/engines/signature.ts');
+const { inspectSignatures } = await import('../src/engines/signature-node.ts');
 const { redact, secretKind, obfuscationScore } = await import('../src/engines/detect.ts');
 const { ensureDirs } = await import('../src/store.ts');
 await ensureDirs();

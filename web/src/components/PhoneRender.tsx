@@ -1,6 +1,7 @@
 import { CSSProperties, ReactNode } from 'react';
 import { Paint, UiNode } from '../lib/api';
-import { cssColor, url } from '../lib/util-url';
+import { cssColor } from '../lib/util-url';
+import { useApiUrl } from '../lib/api';
 
 /**
  * Approximate HTML renderer for reconstructed Android view trees (1dp = 1 CSS px at the chosen device width).
@@ -13,12 +14,12 @@ export function PhoneRender({ root, analysisId, selected, onSelect }: { root: Ui
 
 interface Ctx { analysisId: string; selected?: string; onSelect?: (uid: string) => void }
 
-function paintCss(p: Paint | undefined, ctx: Ctx): CSSProperties {
+function paintCss(p: Paint | undefined, bgUrl: string | undefined): CSSProperties {
   if (!p) return {};
   const s: CSSProperties = {};
   if (p.color) s.backgroundColor = cssColor(p.color);
-  if (p.image && !p.color) {
-    s.backgroundImage = `url("${url(`/analyses/${ctx.analysisId}/drawable`, { path: p.image })}")`;
+  if (p.image && !p.color && bgUrl) {
+    s.backgroundImage = `url("${bgUrl}")`;
     s.backgroundSize = '100% 100%';
   }
   if (p.radius) s.borderRadius = p.radius;
@@ -87,6 +88,8 @@ const CONTAINERS = new Set(['linear', 'scroll', 'hscroll', 'relative', 'constrai
 
 function Node({ n, parent, ctx }: { n: UiNode; parent: UiNode | null; ctx: Ctx }): ReactNode {
   const p = n.props;
+  const bgUrl = useApiUrl(p.background?.image && !p.background.color ? `/analyses/${ctx.analysisId}/drawable` : null, { path: p.background?.image ?? '' });
+  const srcUrl = useApiUrl(p.src?.image ? `/analyses/${ctx.analysisId}/drawable` : null, { path: p.src?.image ?? '' });
   if (p.visibility === 'gone') return null;
   const parentRow = parent ? (parent.kind === 'linear' ? parent.props.orientation === 'horizontal' : parent.kind === 'toolbar' || parent.kind === 'hscroll') : null;
   const isRow = (n.kind === 'linear' && p.orientation === 'horizontal') || n.kind === 'toolbar' || n.kind === 'hscroll';
@@ -98,7 +101,7 @@ function Node({ n, parent, ctx }: { n: UiNode; parent: UiNode | null; ctx: Ctx }
     ...dim(p.height ?? 'wrap', 'h', parentRow, p.weight),
     ...(p.padding ? { padding: `${p.padding[1]}px ${p.padding[2]}px ${p.padding[3]}px ${p.padding[0]}px` } : {}),
     ...(p.margin ? { margin: `${p.margin[1]}px ${p.margin[2]}px ${p.margin[3]}px ${p.margin[0]}px` } : {}),
-    ...paintCss(p.background, ctx),
+    ...paintCss(p.background, bgUrl),
     ...selfGravity(p.layoutGravity, parentRow),
     visibility: p.visibility === 'invisible' ? 'hidden' : undefined,
     outline: sel ? '2px solid #22e3ff' : undefined,
@@ -177,7 +180,7 @@ function Node({ n, parent, ctx }: { n: UiNode; parent: UiNode | null; ctx: Ctx }
       );
     case 'image':
     case 'imagebutton': {
-      const src = p.src?.image ? url(`/analyses/${ctx.analysisId}/drawable`, { path: p.src.image }) : undefined;
+      const src = srcUrl;
       const sz: CSSProperties = { ...style };
       if (!sz.width && !sz.flex && !sz.alignSelf) sz.width = 48;
       if (!sz.height && !sz.flex) sz.height = sz.width === '100%' ? 160 : 48;

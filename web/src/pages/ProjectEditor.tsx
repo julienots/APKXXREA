@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { api, ProjectRecord, upload, url } from '../lib/api';
+import { api, ProjectRecord, upload, apiDownload, useApiUrl } from '../lib/api';
 import { ago, bytes, rememberProject, useAsync } from '../lib/util';
 import { Badge, Card, Empty, ErrorBox, KV, Loading, PageHeader, Spinner, Tabs, Notice } from '../components/ui';
 import { CodeView, langOf } from '../components/CodeView';
@@ -29,7 +29,7 @@ export default function ProjectEditor() {
         subtitle={<span className="mono">{proj.options.packageName} · v{proj.options.versionName} · mis à jour {ago(proj.updatedAt)}</span>}
         actions={
           <>
-            <a className="btn-ghost" href={url(`/projects/${proj.id}/download`)}><IDownload /> Télécharger (.zip)</a>
+            <button className="btn-ghost" onClick={() => apiDownload(`/projects/${proj.id}/download`, `${proj.name.replace(/[^\w-]+/g, '_') || 'project'}.zip`).catch((e) => alert(e.message))}><IDownload /> Télécharger (.zip)</button>
             <Link className="btn-primary" to={`/builder/${proj.id}`}><IHammer /> Compiler l'APK</Link>
           </>
         }
@@ -55,6 +55,7 @@ function Report({ p, onIcon }: { p: ProjectRecord; onIcon: () => void }) {
   const input = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string>();
+  const iconUrl = useApiUrl(`/projects/${p.id}/file`, { path: 'app/src/main/res/mipmap-xxxhdpi/ic_launcher.png', raw: '1', v: p.updatedAt }, false);
   const sendIcon = async (f?: File) => {
     if (!f) return;
     setBusy(true);
@@ -93,7 +94,7 @@ function Report({ p, onIcon }: { p: ProjectRecord; onIcon: () => void }) {
       <div className="grid content-start gap-4">
         <Card title="Icône">
           <div className="flex items-center gap-3">
-            <img src={url(`/projects/${p.id}/file`, { path: 'app/src/main/res/mipmap-xxxhdpi/ic_launcher.png', raw: '1' })} alt="" className="h-16 w-16 rounded-2xl bg-ink-800 object-contain" onError={(e) => ((e.target as HTMLImageElement).style.opacity = '0.2')} />
+            <img src={iconUrl} alt="" className="h-16 w-16 rounded-2xl bg-ink-800 object-contain" onError={(e) => ((e.target as HTMLImageElement).style.opacity = '0.2')} />
             <div className="grid gap-2">
               <input ref={input} type="file" accept="image/png" className="hidden" onChange={(e) => sendIcon(e.target.files?.[0])} />
               <button className="btn-ghost" onClick={() => input.current?.click()} disabled={busy}>{busy ? <Spinner /> : <IUpload />} Remplacer (PNG)</button>
@@ -201,6 +202,7 @@ function FileEditor({ pid, path, onDeleted, onChanged }: { pid: string; path: st
     onDeleted();
   };
   const isImg = /\.(png|webp|jpe?g|gif)$/i.test(path);
+  const imgUrl = useApiUrl(isImg && f.data?.binary ? `/projects/${pid}/file` : null, { path, raw: '1' }, false);
   const isRes = /^app\/src\/main\/(res|assets)\//.test(path);
   const generated = /^app\//.test(path) && !path.startsWith('reference/');
   return (
@@ -218,7 +220,7 @@ function FileEditor({ pid, path, onDeleted, onChanged }: { pid: string; path: st
       {f.loading && <Loading />}
       <ErrorBox error={f.error} />
       {msg && <div className="mb-2 text-xs text-good">{msg}</div>}
-      {f.data?.binary && (isImg ? <div className="grid place-items-center rounded-xl border border-ink-700 bg-ink-950 p-6"><img src={url(`/projects/${pid}/file`, { path, raw: '1' })} alt="" className="max-h-80 object-contain" /></div> : <div className="text-sm text-ink-300">Fichier binaire · {bytes(f.data.size)} · <a className="text-cyan-x" href={url(`/projects/${pid}/file`, { path, raw: '1' })}>télécharger</a></div>)}
+      {f.data?.binary && (isImg ? <div className="grid place-items-center rounded-xl border border-ink-700 bg-ink-950 p-6"><img src={imgUrl} alt="" className="max-h-80 object-contain" /></div> : <div className="text-sm text-ink-300">Fichier binaire · {bytes(f.data.size)} · <button className="text-cyan-x" onClick={() => apiDownload(`/projects/${pid}/file`, path.split('/').pop()!, { path, raw: '1' })}>télécharger</button></div>)}
       {f.data && !f.data.binary && text !== undefined && (edit ? (
         <textarea className="mono scroll-thin h-[65vh] w-full resize-y rounded-xl border border-ink-600 bg-ink-950 p-3 text-[12px] leading-[1.6] text-ink-100 outline-none focus:border-volt-500" spellCheck={false} value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if ((e.metaKey || e.ctrlKey) && e.key === 's') { e.preventDefault(); save(); } if (e.key === 'Tab') { e.preventDefault(); const t = e.currentTarget; const s = t.selectionStart; setText(text.slice(0, s) + '    ' + text.slice(t.selectionEnd)); requestAnimationFrame(() => t.setSelectionRange(s + 4, s + 4)); } }} />
       ) : (

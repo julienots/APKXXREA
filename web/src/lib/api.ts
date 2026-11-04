@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 /** Typed client for the APPXRAY backend. */
 
 export const TOKEN_KEY = 'appxray.token';
@@ -15,16 +16,38 @@ export class ApiError extends Error {
   }
 }
 
-export async function api<T = unknown>(path: string, init: RequestInit & { json?: unknown } = {}): Promise<T> {
+/**
+ * On-device mode: the whole API is served inside the app (Android APK) by the local engine.
+ * Active when the page is served by the APPXRAY Android app (https://appxray.local), unless a server was chosen.
+ */
+export const MODE_KEY = 'appxray.mode';
+export function isLocal(): boolean {
+  try {
+    const m = localStorage.getItem(MODE_KEY);
+    return location.hostname === 'appxray.local' ? m !== 'server' : m === 'local';
+  } catch {
+    return location.hostname === 'appxray.local';
+  }
+}
+let localMod: Promise<typeof import('../local/router')> | null = null;
+const local = () => (localMod ??= import('../local/router'));
+
+async function rawFetch(path: string, init: RequestInit & { file?: File } = {}): Promise<Response> {
+  if (isLocal()) return (await local()).localFetch(path, init);
   const headers = new Headers(init.headers);
   const t = getToken();
   if (t) headers.set('Authorization', `Bearer ${t}`);
+  return fetch(`/api${path}`, { ...init, headers });
+}
+
+export async function api<T = unknown>(path: string, init: RequestInit & { json?: unknown } = {}): Promise<T> {
+  const headers = new Headers(init.headers);
   let body = init.body;
   if (init.json !== undefined) {
     headers.set('Content-Type', 'application/json');
     body = JSON.stringify(init.json);
   }
-  const res = await fetch(`/api${path}`, { ...init, headers, body });
+  const res = await rawFetch(path, { ...init, headers, body });
   const type = res.headers.get('content-type') ?? '';
   const data = type.includes('json') ? await res.json() : await res.text();
   if (!res.ok) throw new ApiError(res.status, (data as { error?: string })?.error ?? `HTTP ${res.status}`);
@@ -40,6 +63,14 @@ export function url(path: string, params: Record<string, string> = {}): string {
 }
 
 export function upload<T>(path: string, file: File, onProgress?: (p: number) => void): Promise<T> {
+  if (isLocal()) {
+    onProgress?.(1);
+    return rawFetch(path, { method: 'POST', file }).then(async (r) => {
+      const d = await r.json();
+      if (!r.ok) throw new ApiError(r.status, d?.error ?? `HTTP ${r.status}`);
+      return d as T;
+    });
+  }
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
     xhr.open('POST', `/api${path}`);
@@ -61,6 +92,72 @@ export function upload<T>(path: string, file: File, onProgress?: (p: number) => 
     fd.append('file', file);
     xhr.send(fd);
   });
+}
+
+/** Fetch an API resource as a Blob (works in server and on-device modes). */
+export async function apiBlob(path: string, params: Record<string, string> = {}): Promise<Blob> {
+  const q = new URLSearchParams(params).toString();
+  const r = await rawFetch(path + (q ? '?' + q : ''));
+  if (!r.ok) throw new ApiError(r.status, `HTTP ${r.status}`);
+  return r.blob();
+}
+
+const blobCache = new Map<string, Promise<string>>();
+/** URL usable in <img>/<audio>/CSS for an API resource. On-device, resolves to a blob: URL. */
+export function useApiUrl(path: string | null, params: Record<string, string> = {}, cache = true): string | undefined {
+  const key = path ? path + '?' + new URLSearchParams(params).toString() : '';
+  const [u, setU] = useState<string | undefined>(() => (path && !isLocal() ? url(path, params) : undefined));
+  useEffect(() => {
+    if (!path) return setU(undefined);
+    if (!isLocal()) return setU(url(path, params));
+    let alive = true;
+    let p = cache ? blobCache.get(key) : undefined;
+    if (!p) {
+      p = apiBlob(path, params).then((b) => URL.createObjectURL(b));
+      if (cache) {
+        blobCache.set(key, p);
+        if (blobCache.size > 400) blobCache.delete(blobCache.keys().next().value!);
+      }
+      p.catch(() => blobCache.delete(key));
+    }
+    p.then((x) => alive && setU(x)).catch(() => alive && setU(undefined));
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key]);
+  return u;
+}
+
+interface AndroidBridge { saveFile?(name: string, mime: string, base64: string): string; openFile?(uri: string, mime: string): void; changeServer?(): void; useLocal?(): void }
+export const android = () => (window as unknown as { AppxrayAndroid?: AndroidBridge }).AppxrayAndroid;
+
+/** Download an API resource to the device (Android: Downloads folder; browser: regular download). */
+export async function apiDownload(path: string, filename: string, params: Record<string, string> = {}): Promise<string> {
+  const br = android();
+  if (!isLocal() && !br?.saveFile) {
+    const a = document.createElement('a');
+    a.href = url(path, params);
+    a.download = filename;
+    a.click();
+    return filename;
+  }
+  const blob = await apiBlob(path, params);
+  if (br?.saveFile) {
+    const buf = new Uint8Array(await blob.arrayBuffer());
+    let s = '';
+    for (let i = 0; i < buf.length; i += 0x8000) s += String.fromCharCode(...buf.subarray(i, i + 0x8000));
+    const uri = br.saveFile(filename, blob.type || 'application/octet-stream', btoa(s));
+    if (!uri) throw new Error('Enregistrement impossible');
+    if (filename.endsWith('.apk') && br.openFile && confirm(`${filename} enregistré dans Téléchargements. L'installer maintenant ?`)) br.openFile(uri, 'application/vnd.android.package-archive');
+    return uri;
+  }
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 60_000);
+  return filename;
 }
 
 // ───── types mirrored from the server ─────
@@ -166,7 +263,7 @@ export interface ProjectRecord {
 export interface BuildRecord {
   id: string;
   projectId: string;
-  mode: 'gradle' | 'lite';
+  mode: 'gradle' | 'lite' | 'device';
   status: 'queued' | 'running' | 'success' | 'failed';
   createdAt: string;
   endedAt?: string;
@@ -181,7 +278,8 @@ export interface SystemInfo {
     java?: string; javac: boolean; keytool: boolean; jarsigner: boolean; apktool?: string; jadx?: string; aapt2?: string; frameworkRes: boolean; androidStubs: boolean; dx: boolean;
     androidSdk?: { path: string; platforms: string[]; buildTools: string[] }; gradle?: string; sandbox: { netns: boolean; prlimit: boolean };
   };
-  buildModes: { gradle: boolean; lite: boolean; reasons: { gradle?: string; lite?: string } };
+  mode?: 'device';
+  buildModes: { gradle: boolean; lite: boolean; device?: boolean; reasons: { gradle?: string; lite?: string } };
   limits: Record<string, number>;
   storage: { bytes: number; files: number };
   settings: { autoDecompile: boolean; jadxThreads: number };

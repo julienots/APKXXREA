@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { api, AnalysisSummary, BuildRecord, JobLite, url } from '../lib/api';
+import { api, AnalysisSummary, BuildRecord, JobLite, useApiUrl } from '../lib/api';
 import { ago, bytes, usePoll } from '../lib/util';
 import { Card, Empty, ErrorBox, Loading, PageHeader, Stat, StatusBadge } from '../components/ui';
 import { IBox, ICode, IHammer, IPhone, IScan, IUpload } from '../components/icons';
@@ -15,8 +15,9 @@ interface Dash {
 
 export function AppIcon({ a, size = 40 }: { a: Pick<AnalysisSummary, 'id' | 'icon' | 'status'>; size?: number }) {
   const p = a.icon?.path;
+  const src = useApiUrl(p && a.status === 'ready' ? `/analyses/${a.id}/drawable` : null, { path: p ?? '' });
   return p && a.status === 'ready' ? (
-    <img src={url(`/analyses/${a.id}/drawable`, { path: p })} alt="" width={size} height={size} className="shrink-0 rounded-xl bg-ink-800 object-contain" loading="lazy" onError={(e) => ((e.target as HTMLImageElement).style.visibility = 'hidden')} />
+    <img src={src} alt="" width={size} height={size} className="shrink-0 rounded-xl bg-ink-800 object-contain" loading="lazy" onError={(e) => ((e.target as HTMLImageElement).style.visibility = 'hidden')} />
   ) : (
     <div className="grid shrink-0 place-items-center rounded-xl bg-ink-700 text-xs text-ink-300" style={{ width: size, height: size }}>
       APK

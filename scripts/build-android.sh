@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the APPXRAY Android app (android/) into dist/appxray.apk with APPXRAY's offline toolchain:
+# Builds the standalone APPXRAY Android app (android/ + bundled web app + on-device engine) into dist/appxray.apk with APPXRAY's offline toolchain:
 # aapt2 → javac (against android-all API 29) → dx → zip → jarsigner. Run `npm run setup:tools` first.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -16,10 +16,13 @@ if [ ! -f "$KS" ]; then
     -alias appxray -keyalg RSA -keysize 3072 -validity 10000 -dname "CN=APPXRAY, O=APPXRAY" 2>&1 | grep -v JAVA_TOOL || true
 fi
 PASS="$(cat "$PASS_FILE")"
+echo "▶ Runtime APPXRAY (moteur des APK compilés sur le téléphone)"; bash "$ROOT/scripts/build-runtime.sh"
+echo "▶ Application web (interface + moteur d'analyse embarqué)"; (cd "$ROOT" && npm run build -w web >/dev/null)
+rm -rf "$SRC/assets/www"; mkdir -p "$SRC/assets"; cp -r "$ROOT/web/dist" "$SRC/assets/www"
 sed "s#<manifest #<manifest package=\"$APPID\" #" "$SRC/AndroidManifest.xml" > "$W/AndroidManifest.xml"
 echo "▶ aapt2"; "$T/aapt2/aapt2" compile --dir "$SRC/res" -o "$W/res.zip"
 "$T/aapt2/aapt2" link -o "$W/base.apk" -I "$T/aapt2/android-framework.jar" --manifest "$W/AndroidManifest.xml" --java "$W/gen" \
-  --min-sdk-version "$MINSDK" --target-sdk-version "$TSDK" --version-code "$VCODE" --version-name "$VNAME" "$W/res.zip"
+  --min-sdk-version "$MINSDK" --target-sdk-version "$TSDK" --version-code "$VCODE" --version-name "$VNAME" -A "$SRC/assets" "$W/res.zip"
 echo "▶ javac ($(basename "$CP"))"; mkdir -p "$W/classes"
 javac --release 8 -encoding UTF-8 -nowarn -cp "$CP" -d "$W/classes" $(find "$SRC/java" "$W/gen" -name '*.java') 2>&1 | grep -v JAVA_TOOL || true
 [ -n "$(find "$W/classes" -name '*.class')" ] || { echo "✖ javac a échoué"; exit 1; }

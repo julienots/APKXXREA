@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api, BuildRecord, ProjectRecord, SystemInfo, url } from '../lib/api';
+import { api, BuildRecord, ProjectRecord, SystemInfo, apiDownload, isLocal } from '../lib/api';
 import { ago, bytes, rememberProject, useAsync, usePoll } from '../lib/util';
 import { Badge, Card, Empty, ErrorBox, Loading, PageHeader, Spinner, StatusBadge, Notice } from '../components/ui';
 import { ICheck, IDownload, IHammer, IPlay, IX } from '../components/icons';
@@ -12,13 +12,13 @@ export default function Builder() {
   const sys = useAsync(() => api<SystemInfo>('/system'), []);
   const builds = useAsync(() => (pid ? api<BuildRecord[]>(`/builds?projectId=${pid}`) : Promise.resolve([])), [pid]);
   const [current, setCurrent] = useState<string>();
-  const [mode, setMode] = useState<'lite' | 'gradle'>('lite');
+  const [mode, setMode] = useState<'lite' | 'gradle' | 'device'>('lite');
   const [err, setErr] = useState<string>();
   useEffect(() => {
     if (pid) rememberProject(pid);
   }, [pid]);
   useEffect(() => {
-    if (sys.data) setMode(sys.data.buildModes.gradle ? 'gradle' : 'lite');
+    if (sys.data) setMode(sys.data.buildModes.device ? 'device' : sys.data.buildModes.gradle ? 'gradle' : 'lite');
   }, [sys.data]);
   useEffect(() => {
     if (!current && builds.data?.[0]) setCurrent(builds.data[0].id);
@@ -37,7 +37,7 @@ export default function Builder() {
   const modes = sys.data?.buildModes;
   return (
     <>
-      <PageHeader kicker="APK Builder" title="Compilation" subtitle="Compilation réelle côté serveur (aapt2, javac, dx/D8, signature) — jamais simulée dans le navigateur." />
+      <PageHeader kicker="APK Builder" title="Compilation" subtitle={isLocal() ? "Compilation réelle sur ce téléphone : manifest et ressources binaires, moteur Android précompilé, signature générée sur l'appareil." : "Compilation réelle côté serveur (aapt2, javac, dx/D8, signature) — jamais simulée dans le navigateur."} />
       <div className="grid gap-4 xl:grid-cols-[360px_1fr]">
         <div className="grid content-start gap-4">
           <Card title="Projet">
@@ -51,19 +51,19 @@ export default function Builder() {
             {!modes && <Loading />}
             {modes && (
               <div className="grid gap-2">
-                {(['gradle', 'lite'] as const).map((m) => (
-                  <label key={m} className={`flex cursor-pointer gap-3 rounded-xl border p-3 ${mode === m ? 'border-cyan-x bg-cyan-x/5' : 'border-ink-700'} ${!modes[m] ? 'opacity-50' : ''}`}>
-                    <input type="radio" className="mt-1 accent-volt-500" disabled={!modes[m]} checked={mode === m} onChange={() => setMode(m)} />
+                {(modes.device ? (['device'] as const) : (['gradle', 'lite'] as const)).map((m) => (
+                  <label key={m} className={`flex cursor-pointer gap-3 rounded-xl border p-3 ${mode === m ? 'border-cyan-x bg-cyan-x/5' : 'border-ink-700'} ${!modes[m as 'lite'] ? 'opacity-50' : ''}`}>
+                    <input type="radio" className="mt-1 accent-volt-500" disabled={!modes[m as 'lite']} checked={mode === m} onChange={() => setMode(m)} />
                     <span className="text-sm">
-                      <span className="font-medium">{m === 'gradle' ? 'Gradle + Android SDK' : 'APPXRAY lite (hors ligne)'}</span>
-                      <span className="block text-xs text-ink-400">{m === 'gradle' ? 'AGP 8.7, compileSdk 35, D8, signature v2. Fidélité maximale.' : 'aapt2 + javac + dx + jarsigner. Java uniquement, targetSdk 29, signature v1.'}</span>
-                      {!modes[m] && <span className="block text-xs text-warn">{modes.reasons[m]}</span>}
+                      <span className="font-medium">{m === 'device' ? 'Sur ce téléphone' : m === 'gradle' ? 'Gradle + Android SDK' : 'APPXRAY lite (hors ligne)'}</span>
+                      <span className="block text-xs text-ink-400">{m === 'device' ? 'Moteur APPXRAY précompilé + vos écrans, fonctionnalités, couleurs, textes et icône. Signature v1 avec une clé créée sur ce téléphone. Les fichiers Java/XML modifiés à la main ne sont pas compilés.' : m === 'gradle' ? 'AGP 8.7, compileSdk 35, D8, signature v2. Fidélité maximale.' : 'aapt2 + javac + dx + jarsigner. Java uniquement, targetSdk 29, signature v1.'}</span>
+                      {!modes[m as 'lite'] && m !== 'device' && <span className="block text-xs text-warn">{modes.reasons[m as 'lite']}</span>}
                     </span>
                   </label>
                 ))}
               </div>
             )}
-            <button className="btn-primary mt-3 w-full" disabled={!pid || !modes?.[mode]} onClick={start}><IPlay /> Lancer la compilation</button>
+            <button className="btn-primary mt-3 w-full" disabled={!pid || !modes?.[mode as 'lite']} onClick={start}><IPlay /> Lancer la compilation</button>
             <ErrorBox error={err} />
           </Card>
           {pid && (
@@ -113,7 +113,7 @@ function BuildView({ id, pid, onDone }: { id: string; pid: string; onDone: () =>
               <div className="mono text-xs break-all text-ink-300">{b.apk.package} · {bytes(b.apk.size)} · {b.apk.classes} classes</div>
               <div className="mono text-[10px] break-all text-ink-500">SHA-256 {b.apk.sha256}</div>
             </div>
-            <a className="btn-primary" href={url(`/builds/${b.id}/apk`)}><IDownload /> Télécharger l'APK</a>
+            <button className="btn-primary" onClick={() => apiDownload(`/builds/${b.id}/apk`, `${(b.apk?.package ?? 'app').replace(/\./g, '_')}.apk`).catch((e) => alert(e.message))}><IDownload /> Télécharger l'APK</button>
           </div>
         )}
         {b.status === 'failed' && (

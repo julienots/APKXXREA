@@ -6,8 +6,7 @@
  *    for layout resource-id literals and const-class / Intent targets.
  * Everything that cannot be recovered is flagged instead of being invented.
  */
-import { Loaded, bestDrawableFile } from './analyzer.js';
-import { readEntry } from './zip.js';
+import { Loaded, bestDrawableFile } from './analysis-core.js';
 import { parseBinaryXml, isBinaryXml, frameworkAttrName, XmlNode, XmlAttr, formatAttrValue, resolveDeep, lookup, VT, isColor, colorHex, complexToFloat, ResValue, Resolver } from './res.js';
 import { classRefs } from './dex.js';
 
@@ -260,7 +259,7 @@ async function convert(node: XmlNode, c: Ctx): Promise<UiNode> {
 const stripUndefined = <T extends object>(o: T): Partial<T> => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)) as Partial<T>;
 
 async function decodeXmlEntry(c: { L: Loaded; r: Resolver }, entry: string): Promise<XmlNode | null> {
-  const buf = await readEntry(c.L.apk, entry, 8 * 1024 * 1024);
+  const buf = await c.L.read(entry, 8 * 1024 * 1024);
   if (!buf || !isBinaryXml(buf)) return null;
   try {
     return parseBinaryXml(buf, frameworkAttrName(c.r));

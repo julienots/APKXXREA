@@ -138,7 +138,7 @@ export function api() {
       const meta = L.files.find((f) => f[0] === name);
       if (!meta) throw httpError(404, 'Entrée introuvable');
       const mode = str(req.query.mode) || 'auto';
-      const buf = await readEntry(L.apk, name, mode === 'raw' ? 64 * 1024 * 1024 : 8 * 1024 * 1024);
+      const buf = await L.read(name, mode === 'raw' ? 64 * 1024 * 1024 : 8 * 1024 * 1024);
       if (!buf) throw httpError(404, 'Entrée illisible');
       const ext = path.extname(name).toLowerCase();
       const IMG: Record<string, string> = { '.png': 'image/png', '.webp': 'image/webp', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif', '.bmp': 'image/bmp' };
@@ -181,7 +181,7 @@ export function api() {
         if (!svg) throw httpError(415, 'Drawable XML non convertible');
         return res.type('image/svg+xml').send(svg);
       }
-      const buf = await readEntry(L.apk, name, 16 * 1024 * 1024);
+      const buf = await L.read(name, 16 * 1024 * 1024);
       res.type(path.extname(name)).send(buf);
     }),
   );

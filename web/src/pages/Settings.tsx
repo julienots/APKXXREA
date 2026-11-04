@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { api, getToken, SystemInfo, TOKEN_KEY } from '../lib/api';
+import { api, getToken, SystemInfo, TOKEN_KEY, isLocal, android } from '../lib/api';
 import { bytes, useAsync } from '../lib/util';
 import { Badge, Card, ErrorBox, KV, Loading, PageHeader, Notice } from '../components/ui';
 import { ITrash } from '../components/icons';
@@ -28,6 +28,14 @@ export default function Settings() {
       {!s && !sys.error && <Loading />}
       {s && (
         <div className="grid gap-4 xl:grid-cols-2">
+          {s.mode === 'device' && (
+            <Card title="Mode téléphone (sans serveur)" className="xl:col-span-2">
+              <p className="text-sm text-ink-200">Analyse, exploration (désassemblage natif), reconstruction UI, génération de projet et compilation d'APK s'exécutent sur ce téléphone. Les APK produits sont signés avec une clé générée et conservée sur l'appareil.</p>
+              <p className="mt-2 text-sm text-ink-400">Non disponible sur téléphone : décompilation Java (JADX), smali (Apktool), compilation de code Java modifié à la main. Pour cela, connectez un serveur APPXRAY (ordinateur).</p>
+              {android()?.changeServer && <button className="btn-ghost mt-3" onClick={() => android()!.changeServer!()}>Utiliser un serveur APPXRAY…</button>}
+            </Card>
+          )}
+          {s.mode !== 'device' && <>
           <Card title="Moteurs d'analyse">
             <KV
               items={[
@@ -67,7 +75,8 @@ export default function Settings() {
             />
             <p className="mt-3 text-xs text-ink-400">Les APK importés ne sont jamais exécutés ni installés. JADX, Apktool et la chaîne lite tournent sans réseau. Le mode Gradle a besoin du réseau pour les dépôts Maven.</p>
           </Card>
-          <Card title="Préférences">
+          </>}
+          {!isLocal() && <Card title="Préférences">
             <label className="flex items-center gap-3 text-sm">
               <input type="checkbox" className="h-4 w-4 accent-volt-500" checked={s.settings.autoDecompile} onChange={(e) => saveSettings({ autoDecompile: e.target.checked })} />
               Décompiler automatiquement (JADX + Apktool) après l'import
@@ -83,12 +92,13 @@ export default function Settings() {
                 <button className="btn-ghost" onClick={() => { try { localStorage.setItem(TOKEN_KEY, token); } catch { /* ignore */ } setMsg('Jeton enregistré sur cet appareil'); }}>Enregistrer</button>
               </div>
             </div>
-          </Card>
-          {'AppxrayAndroid' in window && (
+          </Card>}
+          {'AppxrayAndroid' in window && !isLocal() && (
             <Card title="Application Android" className="xl:col-span-2">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <div className="flex-1 text-sm">Cette application est connectée au serveur APPXRAY <span className="mono text-cyan-x">{location.origin}</span>.</div>
-                <button className="btn-ghost" onClick={() => (window as unknown as { AppxrayAndroid: { changeServer(): void } }).AppxrayAndroid.changeServer()}>Changer de serveur</button>
+                <button className="btn-ghost" onClick={() => android()?.changeServer?.()}>Changer de serveur</button>
+                {android()?.useLocal && <button className="btn-ghost" onClick={() => android()!.useLocal!()}>Revenir au mode téléphone</button>}
               </div>
             </Card>
           )}

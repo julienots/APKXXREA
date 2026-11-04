@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
-import { api, Detection, DecompileState } from '../lib/api';
+import { api, Detection, DecompileState, isLocal } from '../lib/api';
 import { rememberAnalysis, shortName, useAsync } from '../lib/util';
 import { Badge, Card, Empty, ErrorBox, Loading, NeedAnalysis, Notice, PageHeader, Tabs, Spinner } from '../components/ui';
 import { CodeView } from '../components/CodeView';
@@ -66,7 +66,7 @@ function OverviewPane({ o, id }: { o: Overview; id: string }) {
   const max = Math.max(...o.topPackages.map((p) => p.count), 1);
   return (
     <div className="grid gap-4">
-      {(!o.decompile.jadx || o.decompile.jadx.status === 'running') && (
+      {isLocal() ? <Notice>Mode téléphone : vue <strong>désassemblage natif</strong> (bytecode Dalvik décodé sur l'appareil), structure, relations et recherche. Le Java décompilé (JADX) nécessite un serveur APPXRAY sur ordinateur.</Notice> : (!o.decompile.jadx || o.decompile.jadx.status === 'running') && (
         <Notice>
           {o.decompile.jadx?.status === 'running' ? <span className="inline-flex items-center gap-2"><Spinner size={12} /> Décompilation JADX en cours…</span> : 'JADX n\'a pas encore été lancé : seule la désassemblage natif est disponible.'}{' '}
           <Link className="text-cyan-x underline" to={`/analyzer/${id}`}>Voir l'état</Link>

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Analysis, upload } from '../lib/api';
+import { Analysis, upload, isLocal } from '../lib/api';
 import { bytes, rememberAnalysis } from '../lib/util';
 import { Card, ErrorBox, Notice, PageHeader, Spinner } from '../components/ui';
 import { IShield, IUpload } from '../components/icons';
@@ -46,7 +46,7 @@ export default function ImportPage() {
 
   return (
     <>
-      <PageHeader kicker="Module 1" title="Importer un APK" subtitle="Le fichier est analysé statiquement côté serveur, sans jamais être exécuté." />
+      <PageHeader kicker="Module 1" title="Importer un APK" subtitle={isLocal() ? 'Le fichier est analysé statiquement sur ce téléphone, sans jamais être exécuté.' : 'Le fichier est analysé statiquement côté serveur, sans jamais être exécuté.'} />
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
         <Card glow>
           <div
@@ -109,7 +109,7 @@ export default function ImportPage() {
                 </li>
               ))}
             </ol>
-            <p className="mt-3 text-xs text-ink-400">Ensuite, JADX et Apktool sont lancés en arrière-plan dans un bac à sable (réseau coupé, limites CPU/temps).</p>
+            <p className="mt-3 text-xs text-ink-400">{isLocal() ? "Tout s'exécute sur ce téléphone : le fichier ne quitte pas l'appareil." : 'Ensuite, JADX et Apktool sont lancés en arrière-plan dans un bac à sable (réseau coupé, limites CPU/temps).'}</p>
           </Card>
           <Notice>
             <div className="flex gap-2">

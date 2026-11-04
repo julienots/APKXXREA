@@ -14,6 +14,8 @@
     "start": "npm run start -w server",
     "test": "npm test -w server",
     "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
-    "build:android": "bash scripts/build-android.sh"
+    "build:android": "bash scripts/build-android.sh",
+    "build:runtime": "bash scripts/build-runtime.sh",
+    "gen:framework": "npx tsx scripts/gen-framework.mts"
   }
 }

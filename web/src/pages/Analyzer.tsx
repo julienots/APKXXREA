@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api, Analysis, url } from '../lib/api';
+import { api, Analysis, apiDownload, useApiUrl, isLocal } from '../lib/api';
 import { bytes, ago, rememberAnalysis, useAsync, usePoll, cssColor } from '../lib/util';
 import { Badge, Card, Collapsible, Confidence, Empty, ErrorBox, KV, Loading, NeedAnalysis, Notice, PageHeader, StatusBadge, Tabs, Spinner } from '../components/ui';
 import { CodeView } from '../components/CodeView';
@@ -140,6 +140,11 @@ function Overview({ a }: { a: Analysis }) {
 }
 
 function DecompileCard({ a }: { a: Analysis }) {
+  if (isLocal()) return <Notice>Mode téléphone : analyse et désassemblage natif effectués sur l'appareil. La décompilation Java (JADX) et le smali (Apktool) nécessitent un serveur APPXRAY sur ordinateur.</Notice>;
+  return <DecompileCardServer a={a} />;
+}
+
+function DecompileCardServer({ a }: { a: Analysis }) {
   const [busy, setBusy] = useState(false);
   const d = a.decompile ?? {};
   const running = a.jobs?.filter((j) => j.status === 'running' || j.status === 'queued') ?? [];
@@ -222,11 +227,14 @@ interface EntryView { kind: string; text?: string; size?: number; hex?: string; 
 
 function EntryDetail({ a, f, onOpenLayout }: { a: Analysis; f: FileRow; onOpenLayout: (n: string) => void }) {
   const { data, error, loading } = useAsync(() => api<EntryView>(`/analyses/${a.id}/entry?path=${encodeURIComponent(f.name)}`), [f.name]);
-  const raw = url(`/analyses/${a.id}/entry`, { path: f.name, mode: 'raw' });
+  const rawPath = `/analyses/${a.id}/entry`;
+  const raw = useApiUrl(data && ['image', 'media', 'font'].includes(data.kind) ? rawPath : null, { path: f.name, mode: 'raw' }, false);
+  const drawableXml0 = /^res\/(drawable|mipmap)[^/]*\/.+\.xml$/.test(f.name);
+  const svgPreview = useApiUrl(drawableXml0 ? `/analyses/${a.id}/drawable` : null, { path: f.name });
   const layout = /^res\/layout[^/]*\/(.+)\.xml$/.exec(f.name)?.[1];
   const drawableXml = /^res\/(drawable|mipmap)[^/]*\/.+\.xml$/.test(f.name);
   return (
-    <Card title={<span className="mono break-all">{f.name}</span>} actions={<a className="btn-ghost !min-h-8 text-xs" href={raw} download><IDownload width={14} /> Brut</a>}>
+    <Card title={<span className="mono break-all">{f.name}</span>} actions={<button className="btn-ghost !min-h-8 text-xs" onClick={() => apiDownload(rawPath, f.name.split('/').pop()!, { path: f.name, mode: 'raw' }).catch((e) => alert(e.message))}><IDownload width={14} /> Brut</button>}>
       <div className="mb-3 flex flex-wrap gap-2 text-xs">
         <Badge tone="blue">{CAT_LABEL[f.category] ?? f.category}</Badge>
         <Badge>{bytes(f.size)}</Badge>
@@ -235,18 +243,18 @@ function EntryDetail({ a, f, onOpenLayout }: { a: Analysis; f: FileRow; onOpenLa
       </div>
       {loading && <Loading />}
       <ErrorBox error={error} />
-      {data?.kind === 'image' && (
+      {data?.kind === 'image' && raw && (
         <div className="grid place-items-center rounded-xl border border-ink-700 bg-[repeating-conic-gradient(#0b101c_0_25%,#121a2b_0_50%)] bg-[length:16px_16px] p-6">
           <img src={raw} alt={f.name} className="max-h-[50vh] max-w-full object-contain" />
         </div>
       )}
-      {data?.kind === 'media' && (data.type?.startsWith('video') ? <video controls src={raw} className="max-h-[50vh] w-full rounded-xl" /> : <audio controls src={raw} className="w-full" />)}
-      {data?.kind === 'font' && <FontPreview src={raw} />}
+      {data?.kind === 'media' && raw && (data.type?.startsWith('video') ? <video controls src={raw} className="max-h-[50vh] w-full rounded-xl" /> : <audio controls src={raw} className="w-full" />)}
+      {data?.kind === 'font' && raw && <FontPreview src={raw} />}
       {(data?.kind === 'xml' || data?.kind === 'text') && (
         <>
           {drawableXml && (
             <div className="mb-3 flex items-center gap-3 rounded-xl border border-ink-700 p-3">
-              <img src={url(`/analyses/${a.id}/drawable`, { path: f.name })} alt="" className="h-16 w-16 object-contain" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
+              <img src={svgPreview} alt="" className="h-16 w-16 object-contain" onError={(e) => ((e.target as HTMLImageElement).style.display = 'none')} />
               <span className="text-xs text-ink-400">Rendu SVG reconstruit par APPXRAY (vector / shape)</span>
             </div>
           )}

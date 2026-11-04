@@ -5,7 +5,7 @@ import { config } from './config.js';
 import { ensureDirs } from './store.js';
 import { api } from './api.js';
 import { toolStatus } from './engines/tools.js';
-import { loadFramework } from './engines/res.js';
+import { loadFramework } from './engines/framework.js';
 
 async function main() {
   await ensureDirs();
