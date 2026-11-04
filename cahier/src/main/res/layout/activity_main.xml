@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical" android:fitsSystemWindows="true"
+    android:background="@color/bg" android:paddingLeft="16dp" android:paddingRight="16dp">
+
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:text="Cahier" android:textSize="30sp" android:textStyle="bold"
+        android:textColor="@color/text" android:paddingTop="20dp" />
+    <TextView android:id="@+id/count" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textSize="14sp" android:textColor="@color/muted" android:paddingBottom="14dp" />
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:background="@drawable/card"
+        android:padding="6dp" android:gravity="bottom">
+        <EditText android:id="@+id/input" android:layout_width="0dp" android:layout_weight="1"
+            android:layout_height="wrap_content" android:minHeight="48dp"
+            android:hint="Truc à faire, note…" android:background="@null"
+            android:paddingLeft="10dp" android:paddingRight="8dp"
+            android:textColor="@color/text" android:textSize="16sp"
+            android:inputType="textMultiLine|textCapSentences" android:maxLines="6" />
+        <Button android:id="@+id/add" android:layout_width="wrap_content" android:layout_height="48dp"
+            android:text="Ajouter" android:textColor="#FFFFFF" android:textAllCaps="false"
+            android:textSize="15sp" android:background="@drawable/btn"
+            android:paddingLeft="18dp" android:paddingRight="18dp" android:stateListAnimator="@null" />
+    </LinearLayout>
+
+    <TextView android:id="@+id/warn" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" android:padding="12dp" android:background="@drawable/card"
+        android:textColor="@color/accent" android:textSize="14sp" android:visibility="gone"
+        android:text="Les notifications sont désactivées : touchez ici pour les activer." />
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:layout_marginTop="12dp" android:clipToPadding="false" android:paddingBottom="16dp">
+        <LinearLayout android:id="@+id/list" android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:orientation="vertical" />
+    </ScrollView>
+</LinearLayout>
