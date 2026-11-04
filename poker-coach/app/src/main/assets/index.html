@@ -122,6 +122,38 @@
       <label class="check"><input type="checkbox" id="g-coach-start" checked> Coach en direct activé</label>
       <button class="primary" id="g-start">Lancer la partie</button>
     </div>
+    <div id="irl-setup" class="panel">
+      <h2 class="h">Partie à la maison (vraies cartes)</h2>
+      <p class="muted">Tu joues avec un vrai paquet : entre tes cartes et celles du board au fur et à mesure (valeur puis
+        couleur), le coach te conseille à chaque étape.</p>
+      <button class="primary" id="irl-start">Ouvrir le coach de table</button>
+    </div>
+    <div id="irl" hidden>
+      <div class="g-top"><span id="irl-stage"></span><button class="ghost tiny" id="irl-new">Nouvelle main</button><button class="ghost tiny" id="irl-quit">Fermer</button></div>
+      <div class="panel">
+        <div class="irl-cards" id="irl-cards"></div>
+        <div class="row-title" id="irl-next"></div>
+        <div class="irl-ranks" id="irl-ranks"></div>
+        <div class="irl-suits" id="irl-suits"></div>
+        <button class="ghost" id="irl-undo">Effacer la dernière carte</button>
+      </div>
+      <div class="panel coach" id="irl-advice"></div>
+      <div class="panel">
+        <div class="irl-row"><span>Adversaires encore dans le coup</span>
+          <div class="stepper"><button data-s="-1">−</button><b id="irl-n">3</b><button data-s="1">+</button></div></div>
+        <div class="grid2">
+          <label>Pot actuel (avec les mises)<input id="irl-pot" type="number" inputmode="decimal" min="0" placeholder="0"></label>
+          <label>Mise à suivre<input id="irl-call" type="number" inputmode="decimal" min="0" placeholder="0"></label>
+        </div>
+        <label>Façon de jouer des autres
+          <select id="irl-style">
+            <option value="25">Prudents (jouent peu de mains)</option>
+            <option value="45" selected>Normaux</option>
+            <option value="80">Ils suivent avec tout</option>
+          </select>
+        </label>
+      </div>
+    </div>
     <div id="g-play" hidden>
       <div class="g-top">
         <span id="g-info"></span>
@@ -144,6 +176,7 @@
         décision rentable selon la <b>cote du pot</b>.</p>
       <p><b>Préflop</b> : tableaux de départ par position. Rouge = relancer (ou tapis), vert = suivre, gris = se coucher.</p>
       <p><b>Jouer</b> : une vraie partie contre 1 à 5 bots avec le coach en direct (conseil, équité, cote du pot) et le bilan des conseils suivis.</p>
+      <p><b>Partie à la maison</b> (dans Jouer) : tu joues avec de vraies cartes, tu les entres en 2 touches (valeur puis couleur) et le coach te conseille à chaque étape.</p>
       <p><b>Quiz</b> : des situations au hasard ; choisis ton action, l'appli corrige et explique.</p>
 
       <h2>Les 4 règles qui rapportent</h2>
@@ -189,5 +222,6 @@
 <script src="charts.js"></script>
 <script src="app.js"></script>
 <script src="game.js"></script>
+<script src="irl.js"></script>
 </body>
 </html>
