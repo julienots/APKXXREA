@@ -111,3 +111,44 @@ select, input { background: #0d1d16; color: var(--text); border: 1px solid var(-
 .tabs button span { font-size: 20px; line-height: 1.1; }
 .tabs button.on { color: var(--accent); }
 @media (max-width: 360px) { .slot { width: 44px; height: 62px; } .card { width: 40px; height: 56px; } }
+
+/* partie contre les bots */
+.h { font-size: 17px; margin: 0 0 6px; color: var(--accent); }
+.muted { color: var(--muted); font-size: 14px; }
+label.check { flex-direction: row; align-items: center; gap: 8px; font-size: 14px; color: var(--text); margin: 4px 0 12px; }
+label.check input { width: 18px; height: 18px; accent-color: #e9b949; }
+label.check.small { margin: 0; font-size: 13px; }
+.g-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 13px; color: var(--muted); }
+.g-top span { flex: 1; }
+.ptable { position: relative; height: 440px; margin-bottom: 12px; }
+.felt { position: absolute; inset: 9% 6%; border-radius: 48%; background: radial-gradient(ellipse at center, #1d6b45 0%, #134d31 60%, #0e3a25 100%); border: 6px solid #3a2516; box-shadow: inset 0 0 30px #0008, 0 4px 12px #0008; }
+.ptable .center { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; }
+.board { display: flex; gap: 2px; justify-content: center; }
+.board .card { margin: 0; width: 34px; height: 48px; }
+.card.ghost { background: #0003; box-shadow: none; border: 1px dashed #fff3; }
+.pot { margin-top: 6px; font-weight: 700; color: #ffe7a8; font-size: 14px; }
+.seat { position: absolute; transform: translate(-50%, -50%); width: 92px; background: #0b1712ee; border: 1px solid var(--line); border-radius: 10px; padding: 4px 4px 5px; text-align: center; font-size: 11px; z-index: 2; }
+.seat.hero { border-color: var(--accent); }
+.seat.turn { box-shadow: 0 0 0 2px var(--accent), 0 0 14px #e9b94988; }
+.seat.win { box-shadow: 0 0 0 2px #6fe0a6, 0 0 14px #6fe0a688; }
+.seat.out { opacity: .45; }
+.seat .nm { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seat .nm i { font-style: normal; color: var(--muted); font-weight: 400; }
+.dealer { display: inline-block; background: #fff; color: #111; border-radius: 50%; width: 14px; height: 14px; line-height: 14px; font-size: 9px; margin-right: 3px; }
+.seat .sc { height: 32px; display: flex; justify-content: center; gap: 2px; margin: 2px 0; }
+.card.xs { width: 23px; height: 32px; margin: 0; border-radius: 4px; } .card.xs b, .card.xs i { font-size: 11px; }
+.seat.hero .sc { height: 44px; } .seat.hero .card.xs { width: 32px; height: 44px; } .seat.hero .card.xs b, .seat.hero .card.xs i { font-size: 15px; }
+.card.back { background: repeating-linear-gradient(45deg, #9b2c2c 0 4px, #7a1f1f 4px 8px); border: 2px solid #fff; }
+.seat .stk { font-weight: 700; color: #ffe7a8; }
+.seat .lst { color: var(--muted); font-size: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chip { position: absolute; transform: translate(-50%, -50%); background: #e9b949; color: #241a00; font-weight: 800; font-size: 11px; border-radius: 12px; padding: 2px 7px; z-index: 1; box-shadow: 0 1px 3px #0008; }
+.coach { border-color: #e9b94966; }
+.coach-h { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+.coach .verdict { font-size: 20px; padding: 8px; margin-bottom: 6px; }
+.coach .verdict small { font-size: 14px; font-weight: 600; }
+.coach .why { margin: 8px 0 0; font-size: 14px; }
+.g-btns { display: flex; gap: 8px; }
+.g-pres { display: flex; gap: 6px; margin-top: 10px; } .g-pres button { flex: 1; }
+#g-slider { margin-top: 10px; padding: 0; accent-color: #e9b949; }
+.log { font-size: 12px; color: #c3d3ca; max-height: 220px; overflow: auto; } .log div { padding: 1px 0; }
+.tabs button { font-size: 11px; }

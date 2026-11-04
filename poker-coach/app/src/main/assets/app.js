@@ -362,4 +362,5 @@
 
   /* ================= Démarrage ================= */
   renderSlots(); renderPicker(); renderPos(); renderChart(); renderScore();
+  window.Coach = { decide: decide, cardHtml: cardHtml, pct: pct, chartAction: chartAction, classLabel: classLabel };
 })();

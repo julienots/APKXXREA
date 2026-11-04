@@ -99,6 +99,42 @@
     <div class="panel" id="qz-card"></div>
   </section>
 
+  <!-- ============ JOUER ============ -->
+  <section id="tab-jouer" class="tab">
+    <div id="g-setup" class="panel">
+      <h2 class="h">Partie d'entraînement contre des bots</h2>
+      <p class="muted">No-Limit Hold'em, blindes 5/10, tapis de 1 000 (100 BB). Le coach en direct te dit quoi faire à
+        chaque décision et t'explique pourquoi. Jetons fictifs uniquement.</p>
+      <div class="grid2">
+        <label>Nombre de bots
+          <select id="g-nbots"><option>1</option><option>2</option><option>3</option><option>4</option><option selected>5</option></select>
+        </label>
+        <label>Style des bots
+          <select id="g-style">
+            <option value="mix" selected>Mélange</option>
+            <option value="roc">Serrés (prudents)</option>
+            <option value="reg">Réguliers</option>
+            <option value="fou">Agressifs (bluffeurs)</option>
+            <option value="calling">Suiveurs (paient tout)</option>
+          </select>
+        </label>
+      </div>
+      <label class="check"><input type="checkbox" id="g-coach-start" checked> Coach en direct activé</label>
+      <button class="primary" id="g-start">Lancer la partie</button>
+    </div>
+    <div id="g-play" hidden>
+      <div class="g-top">
+        <span id="g-info"></span>
+        <label class="check small"><input type="checkbox" id="g-coach"> Coach</label>
+        <button class="ghost tiny" id="g-quit">Quitter</button>
+      </div>
+      <div class="ptable" id="g-table"></div>
+      <div class="panel coach" id="g-coachbox"></div>
+      <div class="panel" id="g-controls"></div>
+      <div class="panel log" id="g-log"></div>
+    </div>
+  </section>
+
   <!-- ============ AIDE ============ -->
   <section id="tab-aide" class="tab">
     <div class="panel prose">
@@ -107,6 +143,7 @@
         donnes (Monte-Carlo) et te donne ton <b>équité</b> (part du pot qui te revient en moyenne), tes <b>outs</b> et la
         décision rentable selon la <b>cote du pot</b>.</p>
       <p><b>Préflop</b> : tableaux de départ par position. Rouge = relancer (ou tapis), vert = suivre, gris = se coucher.</p>
+      <p><b>Jouer</b> : une vraie partie contre 1 à 5 bots avec le coach en direct (conseil, équité, cote du pot) et le bilan des conseils suivis.</p>
       <p><b>Quiz</b> : des situations au hasard ; choisis ton action, l'appli corrige et explique.</p>
 
       <h2>Les 4 règles qui rapportent</h2>
@@ -141,6 +178,7 @@
 
 <nav class="tabs">
   <button data-tab="analyse" class="on"><span>🂡</span>Analyse</button>
+  <button data-tab="jouer"><span>♣</span>Jouer</button>
   <button data-tab="preflop"><span>▦</span>Préflop</button>
   <button data-tab="quiz"><span>?</span>Quiz</button>
   <button data-tab="aide"><span>i</span>Aide</button>
@@ -150,5 +188,6 @@
 <script src="poker.js"></script>
 <script src="charts.js"></script>
 <script src="app.js"></script>
+<script src="game.js"></script>
 </body>
 </html>

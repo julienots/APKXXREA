@@ -7,7 +7,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 T="${POKER_TOOLS:-$HERE/../tools}"
 SRC="$HERE/app/src/main"; OUT="$HERE/dist"; W="$(mktemp -d)"
 trap 'rm -rf "$W"' EXIT
-VCODE=1; VNAME=1.0.0; MINSDK=21; TSDK=29
+VCODE=2; VNAME=1.1.0; MINSDK=21; TSDK=29
 CP="$T/android/android-all-29.jar"
 for f in "$T/aapt2/aapt2" "$T/aapt2/android-framework.jar" "$CP" "$T/android/dx.jar"; do
   [ -f "$f" ] || { echo "✖ outil manquant : $f"; exit 1; }
