@@ -156,6 +156,38 @@ tr.best td{color:var(--grn);font-weight:700}
 .spark{width:100%;height:70px;display:block}
 .hist{padding:11px 0;border-bottom:1px solid var(--line)}
 .hist:last-child{border-bottom:0}
+.gold{position:relative;border-radius:16px;padding:1.5px;background:linear-gradient(135deg,#F7DE8B,#C9962B 35%,#F3D27A 60%,#A87A1E);box-shadow:0 0 26px rgba(214,170,60,.22);margin-bottom:6px}
+.gold>.in{background:linear-gradient(180deg,#1A1710,var(--s1) 55%);border-radius:14.5px;padding:14px}
+.gold-t{display:flex;align-items:center;gap:8px;color:#E9C766;font-weight:800;font-size:12px;letter-spacing:.14em;margin-bottom:12px}
+.gold-t svg{width:16px;height:16px}
+.gold .lbl{color:#C9A54A;font-size:10.5px;font-weight:800;letter-spacing:.1em;margin:4px 0 6px}
+.gold .big{display:flex;align-items:center;gap:12px}
+.gold .big .m{flex:1;min-width:0}
+.gold .big b.nm{display:block;font-size:15px;font-weight:800}
+.gold .big span{display:block;color:var(--mu);font-size:12px}
+.gold .od{font-size:22px;font-weight:900;color:#F3D27A}
+.gold .why{font-size:12.5px;color:#CFC6AE;line-height:1.5;margin:8px 0 10px;padding:9px 11px;background:rgba(214,170,60,.08);border-radius:9px;border:1px solid rgba(214,170,60,.18)}
+.gold .sep{height:1px;background:rgba(214,170,60,.22);margin:14px 0}
+.btn.gb{background:linear-gradient(135deg,#F3D27A,#C9962B);color:#1A1406}
+.combo.gc{border:1.5px solid #D4AF37;box-shadow:0 0 22px rgba(214,170,60,.18)}
+.combo.gc .combo-h{background:linear-gradient(90deg,rgba(214,170,60,.18),var(--s2))}
+.combo.gc .rk{color:#E9C766}
+.hb{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;border:1px solid var(--line2);color:var(--mu);font-size:11px;font-weight:800;margin-left:6px;vertical-align:middle;letter-spacing:0;text-transform:none;flex-shrink:0}
+.pop{position:fixed;left:16px;right:16px;top:50%;transform:translate(0,-50%) scale(.96);background:var(--s1);border:1px solid var(--line2);border-radius:16px;padding:18px;z-index:41;opacity:0;pointer-events:none;transition:.18s;max-height:80%;overflow:auto}
+.pop.show{opacity:1;pointer-events:auto;transform:translate(0,-50%) scale(1)}
+.pop h3{font-size:16px;margin-bottom:8px}
+.pop p{color:#C9CFDB;font-size:13.5px;line-height:1.55;margin-bottom:8px}
+.pov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:40;display:none}
+.pov.show{display:block}
+.step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.step:last-child{border-bottom:0}
+.step .n{width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;font-weight:800;display:grid;place-items:center;flex-shrink:0;font-size:13px}
+.step b{display:block;margin-bottom:2px}
+.step span{color:var(--mu);font-size:12.5px;line-height:1.5}
+.gl{padding:10px 0;border-bottom:1px solid var(--line)}
+.gl:last-child{border-bottom:0}
+.gl b{display:block;margin-bottom:2px}
+.gl span{color:var(--mu);font-size:12.5px;line-height:1.5}
 input[type=range]{padding:0;border:0;background:none;accent-color:var(--red)}
 </style>
 </head>
@@ -167,6 +199,7 @@ input[type=range]{padding:0;border:0;background:none;accent-color:var(--red)}
       <b>PARI<span>METRIC</span></b>
     </div>
     <div class="chip-bank num" id="bankChip"><i></i><span id="bankVal">0 €</span></div>
+    <button class="ibtn" id="btnHelp" aria-label="Guide"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 0 1 5 1c0 1.8-2.5 2.2-2.5 3.7M12 17.2h.01"/></svg></button>
     <button class="ibtn" id="btnSettings" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
   </header>
   <div class="sports" id="sports"></div>
@@ -177,6 +210,7 @@ input[type=range]{padding:0;border:0;background:none;accent-color:var(--red)}
 <div class="ov" id="ov"></div>
 <div class="sheet" id="sheet"><div class="grab"></div><div class="sheet-h"><b id="sheetT"></b><button class="ibtn" id="sheetX" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="sheet-c" id="sheetC"></div></div>
 <div class="toast" id="toast"></div>
+<div class="pov" id="pov"></div><div class="pop" id="pop"></div>
 
 <script>
 'use strict';
@@ -207,38 +241,52 @@ const ICON = {
   conv: '<path d="M4 9h16M4 15h16M9 4l-2 16M17 4l-2 16"/>',
   sys: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
   ball: '<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/>',
+  star: '<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
   trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
 };
 const ic = (n, sz) => `<svg viewBox="0 0 24 24" ${sz ? `style="width:${sz}px;height:${sz}px"` : ''} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[n]}</svg>`;
 
 /* ============================== Réglages / état ============================== */
-const DEF = { apiKey: '', region: 'eu', bankroll: 100, kellyFrac: 0.25, minBooks: 3, sharpWeight: 3, maxStakePct: 0.05 };
+const DEF = { apiKey: '', region: 'eu', bankroll: 100, kellyFrac: 0.25, minBooks: 3, sharpWeight: 3, maxStakePct: 0.05, markets: 'h2h,totals' };
 let S = Object.assign({}, DEF, store.get('settings', {}));
-const SPORTS = [
-  { key: 'soccer_france_ligue_one', label: 'Ligue 1', t: 'foot' },
-  { key: 'soccer_epl', label: 'Premier League', t: 'foot' },
-  { key: 'soccer_spain_la_liga', label: 'LaLiga', t: 'foot' },
-  { key: 'soccer_italy_serie_a', label: 'Serie A', t: 'foot' },
-  { key: 'soccer_germany_bundesliga', label: 'Bundesliga', t: 'foot' },
-  { key: 'soccer_uefa_champs_league', label: 'Ligue des Champions', t: 'foot' },
-  { key: 'soccer_france_ligue_two', label: 'Ligue 2', t: 'foot' },
-  { key: 'basketball_nba', label: 'NBA', t: 'us' },
-  { key: 'icehockey_nhl', label: 'NHL', t: 'us' },
-  { key: 'basketball_euroleague', label: 'Euroleague', t: 'us' },
+// Familles de sports : chaque compétition de la source est rangée selon le préfixe de sa clé.
+const GROUPS = [
+  { id: 'foot', label: 'Football', pre: ['soccer_'] },
+  { id: 'tennis', label: 'Tennis', pre: ['tennis_'] },
+  { id: 'basket', label: 'Basket', pre: ['basketball_'] },
+  { id: 'badminton', label: 'Badminton', pre: ['badminton_'] },
+  { id: 'hockey', label: 'Hockey', pre: ['icehockey_'] },
+  { id: 'rugby', label: 'Rugby', pre: ['rugbyunion_', 'rugbyleague_'] },
+  { id: 'hand', label: 'Handball', pre: ['handball_'] },
+  { id: 'combat', label: 'MMA / Boxe', pre: ['mma_', 'boxing_'] },
+  { id: 'usfoot', label: 'Foot US', pre: ['americanfootball_'] },
+  { id: 'baseball', label: 'Baseball', pre: ['baseball_'] },
+  { id: 'autres', label: 'Autres', pre: [] },
 ];
+const groupOf = (key) => (GROUPS.find((g) => g.pre.some((p) => key.startsWith(p))) || GROUPS[GROUPS.length - 1]).id;
+const isFoot = (ev) => ev.sport.startsWith('soccer_');
+// Compétitions chargées par défaut sur « Tous » (les autres sont chargées à la demande pour économiser le quota).
+const MAIN = ['soccer_france_ligue_one', 'soccer_epl', 'soccer_spain_la_liga', 'soccer_italy_serie_a', 'soccer_germany_bundesliga', 'soccer_uefa_champs_league', 'soccer_uefa_europa_league', 'basketball_nba'];
 let state = {
   tab: 'home',
   sport: store.get('sport', 'all'),
+  comp: 'all',
   events: [],
+  base: [],
   source: 'demo',
   loading: false,
   remaining: '',
+  catalog: [],
+  cache: store.get('cache2', {}),
+  manual: store.get('manual', []),
   slip: store.get('slip', []),
   bets: store.get('bets', []),
   combo: Object.assign({ legs: 3, minOdds: 2.0, maxOdds: 6, mode: 'safe', minP: 0.55, dc: true, totals: true, h2h: true }, store.get('comboCfg', {})),
   models: store.get('models', {}),
 };
 const SHARP = ['pinnacle', 'betfair_ex_eu', 'betfair_ex_uk', 'matchbook', 'smarkets'];
+const TTL = 20 * 6e4;
 
 /* ============================== Réseau ============================== */
 const pending = {};
@@ -249,39 +297,63 @@ function httpGet(url) {
   }
   return fetch(url).then(async (r) => ({ code: r.status, body: await r.text(), rem: r.headers.get('x-requests-remaining') || '' })).catch((e) => ({ code: 0, body: JSON.stringify({ message: String(e) }), rem: '' }));
 }
-async function loadOdds() {
-  if (!S.apiKey) { state.source = 'demo'; state.events = demoEvents(); render(); return; }
+const apiErr = (r) => { try { return JSON.parse(r.body).message || 'HTTP ' + r.code; } catch (e) { return 'HTTP ' + r.code; } };
+// Liste des compétitions actives : cet appel ne consomme pas de crédit chez The Odds API.
+async function loadCatalog() {
+  const c = store.get('catalog', null);
+  if (c && c.key === S.apiKey && Date.now() - c.t < 6 * 36e5) { state.catalog = c.list; return true; }
+  const r = await httpGet(`https://api.the-odds-api.com/v4/sports/?apiKey=${encodeURIComponent(S.apiKey)}`);
+  if (r.code !== 200) { toast('Source : ' + apiErr(r)); return false; }
+  try {
+    state.catalog = JSON.parse(r.body).filter((s) => s.active && !s.has_outrights).map((s) => ({ key: s.key, label: s.title, group: groupOf(s.key) }));
+    store.set('catalog', { t: Date.now(), key: S.apiKey, list: state.catalog }); return true;
+  } catch (e) { return false; }
+}
+const credits = (n) => n * S.markets.split(',').length;
+function wantedKeys(all) {
+  const inGroup = state.catalog.filter((s) => state.sport === 'all' || s.group === state.sport);
+  if (all) return inGroup.map((s) => s.key);
+  // chargement auto limité pour protéger le quota : compétitions principales, tennis, petites familles ; le reste via « Charger toutes »
+  const small = state.sport !== 'all' && state.sport !== 'foot' && inGroup.length <= 8;
+  return inGroup.filter((s) => small || MAIN.includes(s.key) || s.group === 'tennis' || state.cache[s.key]).map((s) => s.key);
+}
+async function loadOdds(opts = {}) {
+  if (!S.apiKey) { state.source = 'demo'; state.base = demoEvents(); refreshEvents(); render(); return; }
   state.loading = true; render();
-  const keys = state.sport === 'all' ? SPORTS.slice(0, 6).map((s) => s.key) : [state.sport];
-  const all = []; let err = '';
+  if (!(await loadCatalog())) { state.loading = false; state.source = 'demo'; state.base = demoEvents(); refreshEvents(); render(); return; }
+  const keys = wantedKeys(opts.all).filter((k) => opts.force || !state.cache[k] || Date.now() - state.cache[k].t > TTL);
+  let err = '', n = 0;
   for (const k of keys) {
-    const url = `https://api.the-odds-api.com/v4/sports/${k}/odds/?apiKey=${encodeURIComponent(S.apiKey)}&regions=${S.region}&markets=h2h,totals&oddsFormat=decimal&dateFormat=iso`;
-    const r = await httpGet(url);
+    const r = await httpGet(`https://api.the-odds-api.com/v4/sports/${k}/odds/?apiKey=${encodeURIComponent(S.apiKey)}&regions=${S.region}&markets=${S.markets}&oddsFormat=decimal&dateFormat=iso`);
     if (r.rem) state.remaining = r.rem;
-    if (r.code !== 200) {
-      try { err = JSON.parse(r.body).message || ('HTTP ' + r.code); } catch (e) { err = 'HTTP ' + r.code; }
-      if (r.code === 401 || r.code === 429) break; else continue;
-    }
-    try { for (const e of JSON.parse(r.body)) all.push(fromApi(e, k)); } catch (e) { err = 'Réponse illisible'; }
+    if (r.code !== 200) { err = apiErr(r); if (r.code === 401 || r.code === 429) break; continue; }
+    try { state.cache[k] = { t: Date.now(), events: JSON.parse(r.body).map((e) => fromApi(e, k)).filter((e) => Object.keys(e.books).length) }; n++; } catch (e) { err = 'Réponse illisible'; }
   }
-  state.loading = false;
-  if (all.length) { state.events = all.filter((e) => Object.keys(e.books).length); state.source = 'live'; store.set('cache', { t: Date.now(), events: state.events }); toast(`${state.events.length} matchs chargés`); }
-  else { state.source = 'demo'; state.events = demoEvents(); toast(err ? 'Source : ' + err : 'Aucun match disponible'); }
+  // on ne garde en mémoire que les matchs à venir
+  for (const k of Object.keys(state.cache)) { state.cache[k].events = state.cache[k].events.filter((e) => new Date(e.time) > Date.now() - 3 * 36e5); if (Date.now() - state.cache[k].t > 24 * 36e5) delete state.cache[k]; }
+  store.set('cache2', state.cache);
+  state.loading = false; state.source = 'live';
+  state.base = Object.values(state.cache).flatMap((c) => c.events);
+  refreshEvents();
+  if (err) toast('Source : ' + err); else if (n) toast(`${n} compétition(s) mise(s) à jour`);
   render();
 }
+function compLabel(key) {
+  const c = state.catalog.find((s) => s.key === key); if (c) return c.label;
+  return DEMO_LABEL[key] || key;
+}
 function fromApi(e, sportKey) {
-  const sp = SPORTS.find((s) => s.key === sportKey);
-  const ev = { id: e.id, sport: sportKey, league: sp ? sp.label : e.sport_title, home: e.home_team, away: e.away_team, time: e.commence_time, books: {}, draw: sportKey.startsWith('soccer') };
+  const ev = { id: e.id, sport: sportKey, league: compLabel(sportKey), home: e.home_team, away: e.away_team, time: e.commence_time, books: {}, draw: false };
   const pts = {};
   for (const b of e.bookmakers || []) for (const m of b.markets || []) if (m.key === 'totals') for (const o of m.outcomes) pts[o.point] = (pts[o.point] || 0) + 1;
-  const mainLine = +Object.keys(pts).sort((a, b) => pts[b] - pts[a] || Math.abs(a - 2.5) - Math.abs(b - 2.5))[0];
+  const mainLine = +Object.keys(pts).sort((a, b) => pts[b] - pts[a])[0];
   for (const b of e.bookmakers || []) {
     const bk = { title: b.title, sharp: SHARP.includes(b.key) };
     for (const m of b.markets || []) {
       if (m.key === 'h2h') {
         const g = (n) => (m.outcomes.find((o) => o.name === n) || {}).price;
         bk.h2h = { home: g(e.home_team), draw: g('Draw'), away: g(e.away_team) };
-        if (!bk.h2h.draw) delete bk.h2h.draw;
+        if (bk.h2h.draw) ev.draw = true; else delete bk.h2h.draw;
       } else if (m.key === 'totals') {
         const ov = m.outcomes.find((o) => o.name === 'Over' && o.point === mainLine), un = m.outcomes.find((o) => o.name === 'Under' && o.point === mainLine);
         if (ov && un) bk.totals = { line: mainLine, over: ov.price, under: un.price };
@@ -291,9 +363,42 @@ function fromApi(e, sportKey) {
   }
   return ev;
 }
+function refreshEvents() { state.events = [...state.base, ...state.manual]; }
+
+/* ============================== Matchs ajoutés à la main ============================== */
+function saveManual() { store.set('manual', state.manual); refreshEvents(); }
+function openAddMatch() {
+  const g0 = state.sport !== 'all' && state.sport !== 'autres' ? state.sport : 'badminton';
+  const dt = new Date(Date.now() + 2 * 36e5 - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 16);
+  const bookRow = (i) => `<div class="grid3" style="grid-template-columns:1.3fr 1fr 1fr 1fr;gap:6px"><input class="mb" placeholder="Bookmaker ${i + 1}" value="${i ? '' : 'Mon bookmaker'}"><input class="m1" type="number" step="0.01" placeholder="Cote 1"><input class="mx" type="number" step="0.01" placeholder="Cote N"><input class="m2" type="number" step="0.01" placeholder="Cote 2"></div>`;
+  openSheet('Ajouter un match', `
+    <p class="muted" style="margin-bottom:14px;font-size:12.5px">Pour un sport ou un match absent de la liste (badminton, tournoi local...) : recopie les cotes de ton bookmaker. Plus tu entres de bookmakers, plus l’analyse est précise.</p>
+    <div class="grid2"><div class="fld"><label>Sport</label><select id="aSport">${GROUPS.map((g) => `<option value="${g.id}" ${g.id === g0 ? 'selected' : ''}>${g.label}</option>`).join('')}</select></div><div class="fld"><label>Compétition</label><input id="aLg" placeholder="ex. BWF Super 750"></div></div>
+    <div class="grid2"><div class="fld"><label>Joueur / équipe 1</label><input id="aH"></div><div class="fld"><label>Joueur / équipe 2</label><input id="aA"></div></div>
+    <div class="fld"><label>Date et heure</label><input id="aT" type="datetime-local" value="${dt}"></div>
+    <div class="fld"><label>Cotes (laisse « Cote N » vide s’il n’y a pas de match nul)</label><div style="display:grid;gap:6px">${[0, 1, 2].map(bookRow).join('')}</div></div>
+    <div class="fld"><label>Total (option.) : ligne, cote Plus, cote Moins</label><div class="grid3"><input id="aL" type="number" step="0.5" placeholder="ex. 80.5"><input id="aO" type="number" step="0.01" placeholder="Plus"><input id="aU" type="number" step="0.01" placeholder="Moins"></div></div>
+    <button class="btn" id="aSave">Ajouter et analyser</button>`);
+  $('#aSave').onclick = () => {
+    const home = $('#aH').value.trim(), away = $('#aA').value.trim();
+    if (!home || !away) return toast('Indique les deux joueurs / équipes');
+    const books = {}; let draw = false;
+    document.querySelectorAll('#sheetC .mb').forEach((b, i) => {
+      const row = b.parentNode; const o1 = +row.querySelector('.m1').value, ox = +row.querySelector('.mx').value, o2 = +row.querySelector('.m2').value;
+      if (o1 > 1 && o2 > 1) { const h2h = { home: o1, away: o2 }; if (ox > 1) { h2h.draw = ox; draw = true; } books['m' + i] = { title: b.value.trim() || 'Bookmaker ' + (i + 1), h2h }; }
+    });
+    if (!Object.keys(books).length) return toast('Entre au moins les cotes 1 et 2 d’un bookmaker');
+    const L = +$('#aL').value, O = +$('#aO').value, U = +$('#aU').value;
+    if (L > 0 && O > 1 && U > 1) Object.values(books)[0].totals = { line: L, over: O, under: U };
+    const g = $('#aSport').value; const t = new Date($('#aT').value);
+    const ev = { id: 'man-' + Date.now(), sport: (GROUPS.find((x) => x.id === g).pre[0] || 'other_') + 'manual', league: $('#aLg').value.trim() || 'Ajouté par vous', home, away, time: isNaN(t) ? new Date(Date.now() + 36e5).toISOString() : t.toISOString(), books, draw, manual: true };
+    state.manual.push(ev); saveManual(); closeSheet(); render(); openMatch(ev.id);
+  };
+}
 
 /* ============================== Démo (données simulées) ============================== */
 function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+const DEMO_LABEL = { soccer_france_ligue_one: 'Ligue 1', soccer_epl: 'Premier League', soccer_spain_la_liga: 'LaLiga', soccer_italy_serie_a: 'Serie A', soccer_germany_bundesliga: 'Bundesliga', basketball_nba: 'NBA', tennis_atp_demo: 'ATP Tour', tennis_wta_demo: 'WTA Tour', badminton_bwf_demo: 'BWF World Tour', icehockey_nhl: 'NHL' };
 const TEAMS = {
   soccer_france_ligue_one: ['Paris SG', 'Marseille', 'Monaco', 'Lille', 'Lyon', 'Nice', 'Lens', 'Rennes', 'Strasbourg', 'Brest', 'Toulouse', 'Nantes', 'Auxerre', 'Angers', 'Le Havre', 'Lorient'],
   soccer_epl: ['Liverpool', 'Arsenal', 'Man City', 'Chelsea', 'Newcastle', 'Aston Villa', 'Tottenham', 'Brighton', 'Man United', 'West Ham', 'Fulham', 'Everton'],
@@ -301,6 +406,10 @@ const TEAMS = {
   soccer_italy_serie_a: ['Inter', 'Napoli', 'Juventus', 'Milan', 'Atalanta', 'Roma', 'Lazio', 'Bologna', 'Fiorentina', 'Torino'],
   soccer_germany_bundesliga: ['Bayern', 'Leverkusen', 'Dortmund', 'Leipzig', 'Stuttgart', 'Frankfurt', 'Freiburg', 'Wolfsburg', 'Mainz', 'Gladbach'],
   basketball_nba: ['Celtics', 'Nuggets', 'Thunder', 'Knicks', 'Bucks', 'Lakers', 'Warriors', 'Heat', 'Suns', 'Mavericks'],
+  icehockey_nhl: ['Panthers', 'Oilers', 'Rangers', 'Stars', 'Avalanche', 'Bruins', 'Jets', 'Canucks'],
+  tennis_atp_demo: ['J. Sinner', 'C. Alcaraz', 'A. Zverev', 'N. Djokovic', 'T. Fritz', 'D. Medvedev', 'C. Ruud', 'A. de Minaur', 'H. Rune', 'U. Humbert', 'A. Fils', 'G. Monfils'],
+  tennis_wta_demo: ['A. Sabalenka', 'I. Swiatek', 'C. Gauff', 'E. Rybakina', 'J. Pegula', 'Q. Zheng', 'J. Paolini', 'M. Andreeva', 'C. Garcia', 'D. Kasatkina'],
+  badminton_bwf_demo: ['Shi Yuqi', 'V. Axelsen', 'A. Antonsen', 'Kunlavut V.', 'J. Christie', 'Li Shifeng', 'C. Popov', 'T. Popov', 'Lee Zii Jia', 'Loh Kean Yew'],
 };
 function poissonProbs(lh, la, max = 10) {
   const P = (l, k) => Math.exp(-l) * Math.pow(l, k) / fact(k);
@@ -320,22 +429,21 @@ function demoEvents() {
   const R = rng(day * 7919);
   const out = []; const bookNames = ['Book A', 'Book B', 'Book C', 'Book D', 'Book E', 'Exchange X'];
   for (const [sk, teams] of Object.entries(TEAMS)) {
-    if (state.sport !== 'all' && state.sport !== sk) continue;
     const t = teams.slice().sort(() => R() - 0.5);
-    const isFoot = sk.startsWith('soccer');
-    for (let m = 0; m + 1 < t.length && m < 8; m += 2) {
+    const foot = sk.startsWith('soccer'), indiv = sk.startsWith('tennis') || sk.startsWith('badminton');
+    for (let m = 0; m + 1 < t.length && m < 10; m += 2) {
       const sh = 1 - teams.indexOf(t[m]) / teams.length, sa = 1 - teams.indexOf(t[m + 1]) / teams.length;
-      const ev = { id: `demo-${sk}-${m}`, sport: sk, league: (SPORTS.find((s) => s.key === sk) || {}).label, home: t[m], away: t[m + 1], time: new Date((day + 1 + Math.floor(m / 4)) * 864e5 + (15 + (m % 3) * 2) * 36e5).toISOString(), books: {}, draw: isFoot, demo: true };
+      const ev = { id: `demo-${sk}-${m}`, sport: sk, league: DEMO_LABEL[sk], home: t[m], away: t[m + 1], time: new Date((day + 1 + Math.floor(m / 4)) * 864e5 + (indiv ? 9 + m : 15 + (m % 3) * 2) * 36e5).toISOString(), books: {}, draw: foot, demo: true };
       let truth;
-      if (isFoot) { const lh = 1.05 + 1.3 * sh - 0.5 * sa + 0.15, la = 0.85 + 1.2 * sa - 0.45 * sh; const p = poissonProbs(Math.max(.35, lh), Math.max(.3, la)); truth = { home: p.home, draw: p.draw, away: p.away, over: p.over[2.5], line: 2.5 }; }
-      else { const ph = clamp(0.5 + 0.55 * (sh - sa) + 0.04, 0.08, 0.92); truth = { home: ph, away: 1 - ph, over: 0.5, line: sk === 'basketball_nba' ? 224.5 : 5.5 }; }
+      if (foot) { const lh = 1.05 + 1.3 * sh - 0.5 * sa + 0.15, la = 0.85 + 1.2 * sa - 0.45 * sh; const p = poissonProbs(Math.max(.35, lh), Math.max(.3, la)); truth = { home: p.home, draw: p.draw, away: p.away, over: p.over[2.5], line: 2.5 }; }
+      else { const ph = clamp(0.5 + (indiv ? 0.45 : 0.55) * (sh - sa) + (indiv ? 0 : 0.04), 0.06, 0.94); truth = { home: ph, away: 1 - ph, over: 0.5, line: sk === 'basketball_nba' ? 224.5 : sk.startsWith('tennis') ? 22.5 : sk.startsWith('badminton') ? 80.5 : 5.5 }; }
       bookNames.forEach((bn, bi) => {
         if (R() < 0.12 && bi > 1) return;
         const mg = bi === 5 ? 0.025 : 0.045 + R() * 0.045;
         const nz = () => 1 + (R() - 0.5) * 0.06;
         const q = (p) => Math.max(1.01, +(1 / (p * nz() * (1 + mg))).toFixed(2));
         const bk = { title: bn, sharp: bi === 5, h2h: { home: q(truth.home), away: q(truth.away) } };
-        if (isFoot) bk.h2h.draw = q(truth.draw);
+        if (foot) bk.h2h.draw = q(truth.draw);
         bk.totals = { line: truth.line, over: q(truth.over), under: q(1 - truth.over) };
         ev.books['b' + bi] = bk;
       });
@@ -376,11 +484,12 @@ function analyseMarket(ev, market) {
   return { keys, rows, out, line: rows[0].line, margin: rows.reduce((a, r) => a + r.margin, 0) / rows.length, books: rows.length };
 }
 function blendWithModel(ev, A) {
-  const m = state.models[ev.id]; if (!m || !A.h2h || !ev.draw) return A;
+  const m = state.models[ev.id]; if (!m || !A.h2h) return A;
   const P = modelProbs(m); if (!P) return A; const wm = m.weight ?? 0.3;
+  if ((P.type === 'rank') !== (A.h2h.out.length === 2)) return A;
   const mix = (o, pm) => { o.pMarket = o.p; o.pModel = pm; o.p = (1 - wm) * o.p + wm * pm; o.fairOdds = 1 / o.p; o.ev = o.p * o.best - 1; };
   A.h2h.out.forEach((o) => mix(o, P[o.k]));
-  if (A.totals && P.over[A.totals.line] != null) A.totals.out.forEach((o) => mix(o, o.k === 'over' ? P.over[A.totals.line] : 1 - P.over[A.totals.line]));
+  if (P.over && A.totals && P.over[A.totals.line] != null) A.totals.out.forEach((o) => mix(o, o.k === 'over' ? P.over[A.totals.line] : 1 - P.over[A.totals.line]));
   A.model = P; return A;
 }
 function analyse(ev) {
@@ -394,8 +503,9 @@ function conf(o, books) { // indice de fiabilité 0-100 : probabilité, accord d
 function label(ev, market, k, line) {
   if (market === 'h2h') return k === 'home' ? ev.home : k === 'away' ? ev.away : 'Match nul';
   if (market === 'dc') return { '1X': ev.home + ' ou nul', 'X2': 'Nul ou ' + ev.away, '12': ev.home + ' ou ' + ev.away }[k];
-  return (k === 'over' ? 'Plus de ' : 'Moins de ') + line + (ev.sport.startsWith('soccer') ? ' buts' : ' pts');
+  return (k === 'over' ? 'Plus de ' : 'Moins de ') + line + unit(ev);
 }
+const unit = (ev) => (/^(soccer|icehockey|handball)_/.test(ev.sport) ? ' buts' : ev.sport.startsWith('tennis') ? ' jeux' : ' pts');
 const SHORT = { home: '1', draw: 'N', away: '2', over: '+', under: '-' };
 function selections(evs) {
   const out = [];
@@ -447,11 +557,15 @@ function buildCombos(cfg) {
   for (const c of res) { const key = c.legs.map((l) => l.id).join(); const overlap = c.legs.filter((l) => used[l.id] >= 2).length; if (overlap >= Math.ceil(K / 2) && out.length > 4) continue; c.legs.forEach((l) => (used[l.id] = (used[l.id] || 0) + 1)); out.push(c); if (out.length >= 15) break; }
   return { combos: out, pool: sel.length };
 }
-function visibleEvents() { return state.events.filter((e) => state.sport === 'all' || e.sport === state.sport); }
+function visibleEvents() { return state.events.filter((e) => (state.sport === 'all' || groupOf(e.sport) === state.sport) && (state.comp === 'all' || e.sport === state.comp) && new Date(e.time) > Date.now() - 3 * 36e5); }
 
 /* Modèle statistique pré-match (Poisson) : attaque/défense + forme récente */
 function formScore(f) { return (f || []).reduce((a, r, i) => a + (r === 'V' ? 3 : r === 'N' ? 1 : r === 'D' ? 0 : 1.4) * (1 + (4 - i) * 0.1), 0) / (5 * 1.2 * 3); }
 function modelProbs(m) {
+  if (m.type === 'rank') { // sports à 2 issues : écart de classement, % de victoires sur 12 mois, forme récente
+    const x = 0.75 * Math.log(Math.max(1, m.rb) / Math.max(1, m.ra)) + 2.5 * ((m.wa - m.wb) / 100) + 1.2 * (formScore(m.fh) - formScore(m.fa));
+    const p = 1 / (1 + Math.exp(-x)); return { type: 'rank', home: p, away: 1 - p };
+  }
   const lgH = 1.5, lgA = 1.2;
   const fh = formScore(m.fh), fa = formScore(m.fa);
   const lh = clamp((m.hs / lgH) * (m.ac / lgH) * lgH * (1 + (fh - fa) * 0.25), 0.2, 4.5);
@@ -482,8 +596,8 @@ function openSlip() {
   const t = slipTotals(); const k = stakeFor(t.P, t.O);
   openSheet('Coupon', `
     ${state.slip.map((s, i) => `<div class="pick"><div class="m"><b>${esc(s.name)}</b><span>${esc(s.match)} · ${esc(s.book)}</span></div><div class="od"><b class="num">${f2(s.odds)}</b><span class="tag n">${pct(s.p, 0)}</span></div><button class="ibtn" data-rm="${i}" aria-label="Retirer">${ic('trash', 16)}</button></div>`).join('')}
-    <div class="card" style="margin-top:14px"><div class="stat3"><div><span>Cote totale</span><b class="num">${f2(t.O)}</b></div><div><span>Probabilité</span><b class="num">${pct(t.P)}</b></div><div><span>Espérance</span><b class="num" style="color:${t.EV >= 0 ? 'var(--grn)' : '#FF5A6A'}">${sgn(t.EV)}</b></div></div></div>
-    <div class="fld" style="margin-top:14px"><label>Mise (€) · suggestion Kelly ${Math.round(S.kellyFrac * 100)} % : ${eur(k)}${k === 0 ? ' (valeur négative : mise minimale conseillée)' : ''}</label><input id="stake" type="number" inputmode="decimal" value="${(k > 0 ? k : Math.max(1, S.bankroll * 0.01)).toFixed(2)}"></div>
+    <div class="muted" style="font-size:12.5px;margin-top:12px">En clair : ce ticket passe ${fois10(t.P)}.</div><div class="card" style="margin-top:10px"><div class="stat3"><div><span>Cote totale</span><b class="num">${f2(t.O)}</b></div><div><span>Probabilité</span><b class="num">${pct(t.P)}</b></div><div><span>Espérance</span><b class="num" style="color:${t.EV >= 0 ? 'var(--grn)' : '#FF5A6A'}">${sgn(t.EV)}</b></div></div></div>
+    <div class="fld" style="margin-top:14px"><label>${helpBtn('kelly')} Mise (€) · suggestion Kelly ${Math.round(S.kellyFrac * 100)} % : ${eur(k)}${k === 0 ? ' (valeur négative : mise minimale conseillée)' : ''}</label><input id="stake" type="number" inputmode="decimal" value="${(k > 0 ? k : Math.max(1, S.bankroll * 0.01)).toFixed(2)}"></div>
     <div class="row sp-b" style="margin-bottom:14px"><span class="muted">Gain potentiel</span><b class="num" id="gain">-</b></div>
     <button class="btn" id="saveBet">${ic('check', 18)} Enregistrer le pari dans le suivi</button>
     <button class="btn sec" style="margin-top:8px" id="clearSlip">Vider le coupon</button>
@@ -501,11 +615,44 @@ function openSlip() {
   $('#clearSlip').onclick = () => { state.slip = []; store.set('slip', []); closeSheet(); render(); };
 }
 
+/* ============================== Aide ============================== */
+const HELP = {
+  proba: ['Probabilité', 'C’est la chance réelle qu’un résultat arrive, calculée à partir des cotes de tous les bookmakers après avoir retiré leur commission. « 73 % » veut dire : sur 100 matchs comme celui-ci, environ 73 finissent ainsi. Ce n’est jamais 100 % : un favori à 80 % perd quand même 1 fois sur 5.'],
+  cote: ['Cote', 'Ce que le bookmaker te paie. Cote 1.50 : tu mises 10 €, tu récupères 15 € si tu gagnes. Plus la cote est basse, plus le résultat est probable, mais moins il rapporte.'],
+  value: ['Value (bonne affaire)', 'Un pari est « value » quand la cote proposée est plus haute que ce qu’elle devrait être. Exemple : un résultat à 50 % devrait être payé 2.00 ; si un bookmaker le paie 2.20, c’est une value de +10 %. Sur le long terme, ce sont les seuls paris rentables. Repère : le point vert sur une cote.'],
+  fiab: ['Indice de fiabilité', 'Note de 0 à 100 qui combine la probabilité, l’accord entre les bookmakers (s’ils donnent tous la même cote, l’estimation est solide) et le nombre de bookmakers qui proposent le match. Au-dessus de 70 : sélection solide. En dessous de 50 : match incertain.'],
+  ev: ['Espérance', 'Ce que le pari rapporte en moyenne sur le long terme. +5 % : pour 100 € joués souvent, tu gagnes 5 € en moyenne. -5 % : tu en perds 5. La plupart des paris ont une espérance négative à cause de la commission des bookmakers.'],
+  combo: ['Combiné', 'Plusieurs sélections sur un même ticket : les cotes se multiplient, mais il faut que TOUTES passent. Deux sélections à 80 % donnent un combiné à 64 % seulement. Plus tu ajoutes de matchs, plus le risque monte vite. Les combinés de 2 ou 3 sélections sont les plus raisonnables.'],
+  kelly: ['Mise conseillée (Kelly)', 'Méthode qui calcule combien miser selon ton avantage et ta bankroll. Si le pari n’a pas de value, la mise conseillée est 0. L’appli utilise 1/4 de Kelly par défaut et ne dépasse jamais 5 % de ta bankroll, pour éviter les grosses pertes.'],
+  gold: ['Le meilleur du jour', 'Parmi tous les matchs chargés, l’appli choisit : le pari simple le plus probable qui reste au moins au juste prix (cote 1.20 minimum), et le combiné de 2 ou 3 sélections avec la plus forte chance de passer pour une cote totale d’au moins 1.80. Le texte « Pourquoi » explique le choix.'],
+  model: ['Analyse d’avant-match', 'Tu peux ajouter ta propre analyse : statistiques (buts, classement, % de victoires) et forme des 5 derniers matchs (V = victoire, N = nul, D = défaite). L’appli calcule ses propres probabilités et les mélange avec l’avis du marché selon le poids que tu choisis. Active « Utiliser cette analyse » pour qu’elle compte dans les combinés.'],
+  marge: ['Marge du bookmaker', 'La commission cachée dans les cotes. Si les probabilités des cotes font 106 % au total, le bookmaker garde 6 %. L’appli la retire pour trouver les vraies chances.'],
+};
+const helpBtn = (k) => `<button class="hb" data-help="${k}" aria-label="Explication">?</button>`;
+function showHelp(k) { const h = HELP[k]; if (!h) return; $('#pop').innerHTML = `<h3>${h[0]}</h3><p>${h[1]}</p><button class="btn sec" style="margin-top:6px" id="popX">Compris</button>`; $('#pop').classList.add('show'); $('#pov').classList.add('show'); $('#popX').onclick = hideHelp; }
+function hideHelp() { $('#pop').classList.remove('show'); $('#pov').classList.remove('show'); }
+function openGuide() {
+  const steps = [
+    ['Connecte les vraies cotes', 'Dans Réglages (icône en haut à droite), colle ta clé gratuite The Odds API. Sans clé, l’appli montre des cotes de démonstration.'],
+    ['Choisis un sport', 'La barre du haut filtre : Football, Tennis, Basket, Badminton... Dans Matchs, « Charger toutes les compétitions » récupère tous les matchs disponibles.'],
+    ['Regarde le cadre doré', 'Sur l’Accueil, le cadre doré montre le meilleur pari simple et le meilleur combiné du moment, avec la raison du choix.'],
+    ['Analyse un match', 'Touche « Analyse » sur un match : résumé en clair, vraie probabilité de chaque résultat, meilleure cote, et ton analyse d’avant-match (forme, stats).'],
+    ['Construis ton combiné', 'Onglet Combinés : choisis le nombre de matchs, la cote visée et la stratégie. Sécurité = le plus de chances de gagner. Valeur = le plus rentable à long terme.'],
+    ['Valide et suis tes paris', 'Touche une cote pour l’ajouter au coupon rouge, puis enregistre-le. L’onglet Suivi calcule ton bénéfice réel.'],
+  ];
+  openSheet('Guide d’utilisation', `<div class="card">${steps.map((s, i) => `<div class="step"><div class="n">${i + 1}</div><div><b>${s[0]}</b><span>${s[1]}</span></div></div>`).join('')}</div>
+    <h2>Lexique</h2><div class="card">${['cote', 'proba', 'value', 'fiab', 'ev', 'combo', 'kelly', 'marge'].map((k) => `<div class="gl"><b>${HELP[k][0]}</b><span>${HELP[k][1]}</span></div>`).join('')}</div>
+    <h2>Les signes à connaître</h2><div class="card"><div class="gl"><b>Point vert sur une cote</b><span>Bonne affaire : la cote est plus haute que sa valeur réelle.</span></div><div class="gl"><b>Pourcentage sous la cote</b><span>La vraie chance de ce résultat.</span></div><div class="gl"><b>1 / N / 2</b><span>Victoire du premier nommé / match nul / victoire du second.</span></div><div class="gl"><b>+2.5 / -2.5</b><span>Plus ou moins de 2.5 buts (ou jeux, ou points) dans le match.</span></div></div>
+    <button class="btn" style="margin-top:16px" id="gOk">C’est parti</button>
+    <p class="legal">Aucun pari n’est certain. Ne mise que ce que tu peux te permettre de perdre.</p>`);
+  $('#gOk').onclick = () => { store.set('seenGuide', 1); closeSheet(); };
+}
+
 /* ============================== Feuilles ============================== */
 let sheetOpen = false;
 function openSheet(title, html) { $('#sheetT').textContent = title; $('#sheetC').innerHTML = html; $('#sheetC').scrollTop = 0; $('#sheetC').onclick = null; $('#sheet').classList.add('show'); $('#ov').classList.add('show'); sheetOpen = true; updSlip(); }
 function closeSheet() { $('#sheet').classList.remove('show'); $('#ov').classList.remove('show'); sheetOpen = false; updSlip(); }
-window.appBack = () => { if (sheetOpen) { closeSheet(); return true; } if (state.tab !== 'home') { go('home'); return true; } return false; };
+window.appBack = () => { if ($('#pop').classList.contains('show')) { hideHelp(); return true; } if (sheetOpen) { closeSheet(); return true; } if (state.tab !== 'home') { go('home'); return true; } return false; };
 
 /* ============================== Rendu ============================== */
 function fmtTime(iso) {
@@ -514,9 +661,12 @@ function fmtTime(iso) {
   return (dd === 0 ? "Aujourd'hui" : dd === 1 ? 'Demain' : d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: '2-digit' })) + ' ' + tm;
 }
 function srcBanner() {
-  if (state.source === 'live') return `<div class="banner ok">${ic('check')}<div>Cotes réelles · ${state.events.length} matchs${state.remaining ? ' · ' + esc(state.remaining) + ' requêtes restantes' : ''}</div></div>`;
-  return `<div class="banner">${ic('info')}<div><b>Mode démonstration.</b> Les cotes affichées sont simulées. Ajoutez votre clé The Odds API dans les réglages pour analyser les cotes réelles des bookmakers.</div></div>`;
+  if (state.source === 'live') return `<div class="banner ok">${ic('check')}<div>Cotes réelles · ${state.events.length} matchs${state.remaining ? ' · ' + esc(state.remaining) + ' crédits restants ce mois' : ''}</div></div>`;
+  return `<div class="banner">${ic('info')}<div><b>Mode démonstration.</b> Les cotes affichées sont simulées. Ajoute ta clé The Odds API dans les réglages pour analyser les vraies cotes des bookmakers.</div></div>`;
 }
+// Registre des combinés affichés (pour le bouton « Jouer »), réinitialisé à chaque rendu.
+let REG = {}, regN = 0;
+const regCombo = (c) => { const id = 'c' + regN++; REG[id] = c; return id; };
 function oddsBtn(ev, mk, o, M) {
   const s = { id: `${ev.id}|${mk}|${o.k}` }; const lbl = mk === 'h2h' ? SHORT[o.k] : (o.k === 'over' ? '+' : '-') + M.line;
   return `<button class="o${inSlip(s.id) ? ' sel' : ''}${o.ev > 0.01 ? ' val' : ''}" data-sel="${s.id}"><small>${lbl}</small><b class="num">${f2(o.best)}</b><em class="num">${pct(o.p, 0)}</em></button>`;
@@ -532,7 +682,33 @@ function eventCard(ev) {
   </div>`;
 }
 function pickRow(s, extra) {
-  return `<div class="pick" data-sel-row="${esc(s.id)}"><div class="m"><b>${esc(s.name)}</b><span>${esc(s.ev.home)} - ${esc(s.ev.away)} · ${fmtTime(s.ev.time)}</span><div class="bar ${s.p > 0.7 ? 'g' : ''}"><i style="width:${(s.p * 100).toFixed(0)}%"></i></div></div><div class="od"><b class="num">${f2(s.odds)}</b>${extra || `<span class="tag n num">${pct(s.p, 0)}</span>`}</div><button class="o${inSlip(s.id) ? ' sel' : ''}" style="width:40px;padding:8px 0" data-sel="${esc(s.id)}"><b style="font-size:16px">+</b></button></div>`;
+  return `<div class="pick"><div class="m"><b>${esc(s.name)}</b><span>${esc(s.ev.home)} - ${esc(s.ev.away)} · ${fmtTime(s.ev.time)}</span><div class="bar ${s.p > 0.7 ? 'g' : ''}"><i style="width:${(s.p * 100).toFixed(0)}%"></i></div></div><div class="od"><b class="num">${f2(s.odds)}</b>${extra || `<span class="tag n num">${Math.round(s.p * 100)} / 100</span>`}</div><button class="o${inSlip(s.id) ? ' sel' : ''}" style="width:40px;padding:8px 0" data-sel="${esc(s.id)}"><b style="font-size:16px">+</b></button></div>`;
+}
+const fois10 = (p) => { const n = Math.round(p * 10); return n >= 10 ? 'presque à chaque fois (mais jamais à coup sûr)' : n <= 0 ? 'moins d’une fois sur 10' : `environ ${n} fois sur 10`; };
+function bestPicks() {
+  const sel = selections(visibleEvents()).filter((s) => !s.est && s.odds >= 1.2 && s.p >= 0.5);
+  const fairOnes = sel.filter((s) => s.evv >= -0.005);
+  const single = (fairOnes.length ? fairOnes : sel).slice().sort((a, b) => b.p - a.p || b.conf - a.conf)[0] || null;
+  let combo = null;
+  for (const L of [2, 3]) for (const c of buildCombos({ legs: L, minOdds: 1.8, maxOdds: 3.5, mode: 'safe', minP: 0.55, dc: false, totals: true, h2h: true }).combos) if (!combo || c.P > combo.P) combo = c;
+  return { single, combo };
+}
+function vGold() {
+  const { single: s, combo: c } = bestPicks();
+  if (!s && !c) return '';
+  return `<div class="gold"><div class="in">
+    <div class="gold-t">${ic('star')}LE MEILLEUR DU JOUR ${helpBtn('gold')}</div>
+    ${s ? `<div class="lbl">MEILLEUR PARI SIMPLE</div>
+    <div class="big"><div class="m"><b class="nm">${esc(s.name)}</b><span>${esc(s.ev.home)} - ${esc(s.ev.away)} · ${fmtTime(s.ev.time)}</span></div><div class="od num">${f2(s.odds)}</div></div>
+    <div class="why"><b>Pourquoi :</b> passe ${fois10(s.p)} (${pct(s.p, 0)}), fiabilité ${s.conf}/100. Meilleure cote chez ${esc(s.book)}${s.evv >= 0 ? `, au-dessus de sa cote juste ${f2(s.fair)} (${sgn(s.evv)})` : `, très proche de sa cote juste ${f2(s.fair)}`}.</div>
+    <button class="btn gb" data-sel="${esc(s.id)}">${inSlip(s.id) ? 'Retirer du coupon' : 'Ajouter au coupon'}</button>` : ''}
+    ${s && c ? '<div class="sep"></div>' : ''}
+    ${c ? `<div class="lbl">MEILLEUR COMBINÉ · ${c.legs.length} SÉLECTIONS</div>
+    ${c.legs.map((l) => `<div class="big" style="margin-bottom:8px"><div class="m"><b class="nm" style="font-size:14px">${esc(l.name)}</b><span>${esc(l.ev.home)} - ${esc(l.ev.away)} · ${pct(l.p, 0)}</span></div><b class="num">${f2(l.odds)}</b></div>`).join('')}
+    <div class="row sp-b"><span class="muted">Cote totale</span><span class="od num">${f2(c.O)}</span></div>
+    <div class="why"><b>Pourquoi :</b> c’est le combiné à cote 1.80 minimum qui a le plus de chances de passer : ${fois10(c.P)} (${pct(c.P, 0)}). Chaque sélection a au moins ${pct(Math.min(...c.legs.map((l) => l.p)), 0)} de chances.</div>
+    <button class="btn gb" data-combo="${regCombo(c)}">Jouer ce combiné</button>` : ''}
+  </div></div>`;
 }
 function vHome() {
   const evs = visibleEvents(); const sel = selections(evs);
@@ -541,45 +717,58 @@ function vHome() {
   const c = buildCombos(Object.assign({}, state.combo, { legs: 2, minOdds: 1.5, maxOdds: 3, mode: 'safe', minP: 0.6 })).combos.slice(0, 3);
   const opn = state.bets.filter((b) => b.status === 'open').length;
   return `${srcBanner()}
-    <div class="kpis"><div class="kpi"><span>Matchs</span><b class="num">${evs.length}</b></div><div class="kpi"><span>Value bets</span><b class="num" style="color:var(--grn)">${sel.filter((s) => !s.est && s.evv > 0.005).length}</b></div><div class="kpi"><span>Paris ouverts</span><b class="num">${opn}</b></div></div>
-    <h2>Combinés les plus sûrs <small>2 sélections, cote 1.50 - 3.00</small></h2>
-    ${c.length ? `<div class="hs">${c.map((x, i) => comboCard(x, i, true)).join('')}</div>` : '<div class="card muted">Pas assez de sélections fiables pour l’instant.</div>'}
-    <h2>Sélections les plus probables</h2>
+    ${vGold()}
+    <div class="kpis" style="margin-top:12px"><div class="kpi"><span>Matchs</span><b class="num">${evs.length}</b></div><div class="kpi"><span>Bonnes affaires</span><b class="num" style="color:var(--grn)">${sel.filter((s) => !s.est && s.evv > 0.005).length}</b></div><div class="kpi"><span>Paris ouverts</span><b class="num">${opn}</b></div></div>
+    <h2><span>Combinés les plus sûrs ${helpBtn('combo')}</span><small>2 sélections, cote 1.50 - 3.00</small></h2>
+    ${c.length ? `<div class="hs">${c.map((x, i) => comboCard(x, i)).join('')}</div>` : '<div class="card muted">Pas assez de sélections fiables pour l’instant.</div>'}
+    <h2><span>Paris les plus probables ${helpBtn('proba')}</span><small>chances sur 100</small></h2>
     <div class="card">${safest.map((s) => pickRow(s)).join('') || '<span class="muted">Aucune sélection.</span>'}</div>
-    <h2>Value bets <small>cote supérieure à la probabilité réelle</small></h2>
+    <h2><span>Bonnes affaires (value) ${helpBtn('value')}</span><small>cote trop haute</small></h2>
     <div class="card">${value.map((s) => pickRow(s, `<span class="tag g num">${sgn(s.evv)}</span>`)).join('') || '<span class="muted">Aucune value détectée sur les marchés chargés.</span>'}</div>
-    <p class="legal">Parimetric calcule des probabilités à partir des cotes du marché et de modèles statistiques. Aucun pari n’est certain. Jouez de manière responsable : 09 74 75 13 13 (Joueurs Info Service).</p>`;
+    <p class="legal">Parimetric calcule des probabilités à partir des cotes du marché et de modèles statistiques. Aucun pari n’est certain. Joue de manière responsable : 09 74 75 13 13 (Joueurs Info Service).</p>`;
 }
 function vMatches() {
+  if (state.loading) return '<div class="spin"></div><p class="legal">Chargement des cotes...</p>';
+  const inGroup = state.events.filter((e) => (state.sport === 'all' || groupOf(e.sport) === state.sport));
+  const comps = [...new Map(inGroup.map((e) => [e.sport, e.league])).entries()].sort((a, b) => a[1].localeCompare(b[1]));
+  if (state.comp !== 'all' && !comps.some(([k]) => k === state.comp)) state.comp = 'all';
   const evs = visibleEvents().slice().sort((a, b) => new Date(a.time) - new Date(b.time));
-  if (state.loading) return '<div class="spin"></div>';
-  return `${srcBanner()}<div class="row sp-b" style="margin-bottom:12px"><span class="muted">${evs.length} matchs · point vert = value</span><button class="btn sec sm" id="reload">Actualiser</button></div>
-    ${evs.map(eventCard).join('') || `<div class="empty">${ic('ball')}<div>Aucun match pour cette compétition.</div></div>`}`;
+  const avail = state.source === 'live' ? state.catalog.filter((s) => state.sport === 'all' || s.group === state.sport) : [];
+  const notLoaded = avail.filter((s) => !state.cache[s.key]).length;
+  const gl = (GROUPS.find((g) => g.id === state.sport) || {}).label;
+  const noSource = state.source === 'live' && state.sport !== 'all' && !avail.length;
+  return `${srcBanner()}
+    ${noSource ? `<div class="banner">${ic('info')}<div>${state.sport === 'badminton' ? 'La source de cotes ne propose pas le badminton.' : `Aucune compétition de ${esc(gl)} n’est ouverte aux paris en ce moment chez la source.`} Ajoute le match toi-même avec les cotes de ton bookmaker : l’analyse fonctionne de la même façon.</div></div>` : ''}
+    ${comps.length > 1 ? `<div class="fld"><select id="compSel"><option value="all">Toutes les compétitions (${inGroup.length} matchs)</option>${comps.map(([k, l]) => `<option value="${esc(k)}" ${state.comp === k ? 'selected' : ''}>${esc(l)} (${inGroup.filter((e) => e.sport === k).length})</option>`).join('')}</select></div>` : ''}
+    ${notLoaded ? `<button class="btn" id="loadAll" style="margin-bottom:10px">Charger toutes les compétitions (${notLoaded} de plus, ${credits(notLoaded)} crédits)</button>` : ''}
+    <div class="row" style="margin-bottom:12px;gap:8px"><span class="muted" style="flex:1">${evs.length} matchs</span><button class="btn sec sm" id="addMatch">${ic('plus', 15)} Ajouter</button>${state.source === 'live' ? '<button class="btn sec sm" id="reload">Actualiser</button>' : ''}</div>
+    ${evs.map(eventCard).join('') || `<div class="empty">${ic('ball')}<div>Aucun match ici pour l’instant.</div><button class="btn sm" style="margin:14px auto 0" id="addMatch2">Ajouter un match</button></div>`}`;
 }
-function comboCard(c, i, compact) {
-  return `<div class="combo card" style="padding:0">
-    <div class="combo-h"><span class="rk">COMBINÉ ${i + 1} · ${c.legs.length} SÉL.</span><span class="tag ${c.P >= 0.45 ? 'g' : c.P >= 0.25 ? 'a' : 'r'}">${pct(c.P)} de réussite</span></div>
-    <div class="combo-b">${c.legs.map((l) => `<div class="pick"><div class="m"><b>${esc(l.name)}</b><span>${esc(l.ev.home)} - ${esc(l.ev.away)}${l.est ? ' · cote estimée' : ''}</span></div><div class="od"><b class="num">${f2(l.odds)}</b><span class="mu2 num" style="font-size:11px">${pct(l.p, 0)}</span></div></div>`).join('')}</div>
-    <div class="combo-f"><div><span>Cote</span><b class="num">${f2(c.O)}</b></div><div><span>Proba</span><b class="num">${pct(c.P, 0)}</b></div><div><span>Espérance</span><b class="num" style="color:${c.EV >= 0 ? 'var(--grn)' : '#FF5A6A'}">${sgn(c.EV, 0)}</b></div><div><button class="btn sm" style="width:100%;padding:7px 4px" data-combo="${i}">Jouer</button></div></div>
+function comboCard(c, i, gold) {
+  return `<div class="combo card${gold ? ' gc' : ''}" style="padding:0">
+    <div class="combo-h"><span class="rk">${gold ? 'MEILLEUR CHOIX' : 'COMBINÉ ' + (i + 1)} · ${c.legs.length} SÉL.</span><span class="tag ${c.P >= 0.45 ? 'g' : c.P >= 0.25 ? 'a' : 'r'}">${pct(c.P, 0)} de réussite</span></div>
+    <div class="combo-b">${c.legs.map((l) => `<div class="pick"><div class="m"><b>${esc(l.name)}</b><span>${esc(l.ev.home)} - ${esc(l.ev.away)}${l.est ? ' · cote estimée' : ''}</span></div><div class="od"><b class="num">${f2(l.odds)}</b><span class="mu2 num" style="font-size:11px">${pct(l.p, 0)}</span></div></div>`).join('')}
+    <div class="muted" style="font-size:12px;padding:2px 0 10px">En clair : passe ${fois10(c.P)}.</div></div>
+    <div class="combo-f"><div><span>Cote</span><b class="num">${f2(c.O)}</b></div><div><span>Proba</span><b class="num">${pct(c.P, 0)}</b></div><div><span>Espérance</span><b class="num" style="color:${c.EV >= 0 ? 'var(--grn)' : '#FF5A6A'}">${sgn(c.EV, 0)}</b></div><div><button class="btn sm${gold ? ' gb' : ''}" style="width:100%;padding:7px 4px" data-combo="${regCombo(c)}">Jouer</button></div></div>
   </div>`;
 }
-let lastCombos = [];
 function vCombos() {
-  const c = state.combo; const R = buildCombos(c); lastCombos = R.combos;
+  const c = state.combo; const R = buildCombos(c);
   const segM = (v, l) => `<button data-mode="${v}" class="${c.mode === v ? 'on' : ''}">${l}</button>`;
   const segL = [2, 3, 4, 5, 6].map((n) => `<button data-legs="${n}" class="${c.legs === n ? 'on' : ''}">${n}</button>`).join('');
   return `${srcBanner()}
   <div class="card">
-    <div class="fld"><label>Stratégie</label><div class="seg">${segM('safe', 'Sécurité')}${segM('bal', 'Équilibré')}${segM('value', 'Valeur')}</div></div>
+    <div class="fld"><label>Stratégie</label><div class="seg">${segM('safe', 'Sécurité')}${segM('bal', 'Équilibré')}${segM('value', 'Valeur')}</div>
+    <div class="muted" style="font-size:12px;margin-top:7px">${{ safe: 'Sécurité : le plus de chances de gagner, gains plus faibles.', bal: 'Équilibré : bon compromis entre chances de gagner et gain.', value: 'Valeur : les cotes les plus avantageuses, rentable sur la durée mais plus risqué.' }[c.mode]}</div></div>
     <div class="fld"><label>Nombre de sélections</label><div class="seg">${segL}</div></div>
     <div class="grid2"><div class="fld"><label>Cote totale min.</label><input type="number" step="0.1" id="cMin" value="${c.minOdds}"></div><div class="fld"><label>Cote totale max.</label><input type="number" step="0.5" id="cMax" value="${c.maxOdds}"></div></div>
     <div class="fld"><label>Probabilité minimale par sélection : <b id="pLbl">${pct(c.minP, 0)}</b></label><input type="range" min="0.3" max="0.9" step="0.01" id="cP" value="${c.minP}"></div>
     <div class="line-r"><span>Résultat 1N2</span><label class="sw"><input type="checkbox" id="cH" ${c.h2h ? 'checked' : ''}><i></i></label></div>
     <div class="line-r"><span>Double chance <span class="mu2">(cote estimée)</span></span><label class="sw"><input type="checkbox" id="cD" ${c.dc ? 'checked' : ''}><i></i></label></div>
-    <div class="line-r"><span>Plus / moins de buts</span><label class="sw"><input type="checkbox" id="cT" ${c.totals ? 'checked' : ''}><i></i></label></div>
+    <div class="line-r"><span>Plus / moins (buts, jeux, points)</span><label class="sw"><input type="checkbox" id="cT" ${c.totals ? 'checked' : ''}><i></i></label></div>
   </div>
-  <h2>${R.combos.length} combinés trouvés <small>${R.pool} sélections analysées</small></h2>
-  ${R.combos.map((x, i) => comboCard(x, i)).join('') || `<div class="empty">${ic('combo')}<div>Aucun combiné ne respecte ces critères.<br>Baissez la probabilité minimale ou élargissez la cote cible.</div></div>`}
+  <h2><span>${R.combos.length} combinés trouvés ${helpBtn('combo')}</span><small>${R.pool} sélections analysées</small></h2>
+  ${R.combos.map((x, i) => comboCard(x, i, i === 0)).join('') || `<div class="empty">${ic('combo')}<div>Aucun combiné ne respecte ces critères.<br>Baisse la probabilité minimale ou élargis la cote visée.</div></div>`}
   <p class="legal">Probabilité du combiné = produit des probabilités de chaque sélection (matchs indépendants). Plus il y a de sélections, plus le risque augmente.</p>`;
 }
 function vTools() {
@@ -603,40 +792,57 @@ function vTrack() {
     ${b.status === 'open' ? `<div class="row" style="gap:6px"><button class="btn sm" data-st="won" data-i="${i}" style="background:var(--grn)">Gagné</button><button class="btn sm sec" data-st="lost" data-i="${i}">Perdu</button></div>` : `<button class="ibtn" data-del="${i}" aria-label="Supprimer">${ic('trash', 15)}</button>`}</div></div>`).join('') || `<div class="empty">${ic('track')}<div>Aucun pari enregistré. Ajoutez des sélections au coupon puis enregistrez-les.</div></div>`}</div>`;
 }
 
-const DEF_MODEL = () => ({ hs: 1.5, hc: 1.1, as: 1.2, ac: 1.4, fh: ['V', 'N', 'V', 'D', 'V'], fa: ['N', 'D', 'V', 'N', 'D'], weight: 0.3 });
+const modelType = (ev) => (isFoot(ev) ? 'poisson' : !ev.draw ? 'rank' : null);
+const DEF_MODEL = (ev) => (modelType(ev) === 'rank'
+  ? { type: 'rank', ra: 10, rb: 30, wa: 65, wb: 55, fh: ['V', 'V', 'D', 'V', 'V'], fa: ['V', 'D', 'D', 'V', 'D'], weight: 0.3 }
+  : { type: 'poisson', hs: 1.5, hc: 1.1, as: 1.2, ac: 1.4, fh: ['V', 'N', 'V', 'D', 'V'], fa: ['N', 'D', 'V', 'N', 'D'], weight: 0.3 });
+function plainSummary(ev, A) {
+  if (!A.h2h) return '';
+  const top = A.h2h.out.slice().sort((a, b) => b.p - a.p)[0]; const n = Math.round(top.p * 100);
+  const v = A.h2h.out.filter((o) => o.ev > 0.005).sort((a, b) => b.ev - a.ev)[0];
+  return `<div class="card" style="margin-bottom:10px;border-color:var(--line2)"><div class="muted" style="font-size:11px;font-weight:700;letter-spacing:.08em;margin-bottom:6px">EN CLAIR ${helpBtn('proba')}</div>
+    <div style="font-size:14px;line-height:1.5">Le plus probable : <b>${esc(label(ev, 'h2h', top.k))}</b>, environ <b>${n} fois sur 100</b>.
+    Meilleure cote : <b class="num">${f2(top.best)}</b>${top.bestBk ? ' chez ' + esc(top.bestBk) : ''}.<br>
+    ${v ? `<span style="color:var(--grn)">Bonne affaire repérée : ${esc(label(ev, 'h2h', v.k))} est payé ${f2(v.best)} alors que sa cote juste est ${f2(v.fairOdds)} (${sgn(v.ev)}).</span>` : '<span class="muted">Aucune cote n’est au-dessus de sa valeur réelle sur ce match.</span>'}</div></div>`;
+}
 function vMatchSheet(ev, draft) {
-  const A = analyse(ev); const m = draft || state.models[ev.id] || DEF_MODEL();
+  const A = analyse(ev); const mt = modelType(ev); const m = draft || state.models[ev.id] || DEF_MODEL(ev);
   const tbl = (M, mk) => !M ? '' : `
-    <div class="card" style="margin-bottom:10px"><div class="row sp-b" style="margin-bottom:8px"><b>${mk === 'h2h' ? 'Résultat du match' : 'Total ' + M.line}</b><span class="tag n">${M.books} bookmakers · marge ${pct(M.margin)}</span></div>
+    <div class="card" style="margin-bottom:10px"><div class="row sp-b" style="margin-bottom:8px"><b>${mk === 'h2h' ? 'Résultat du match' : 'Total ' + M.line + unit(ev)}</b><span class="tag n">${M.books} bookmaker${M.books > 1 ? 's' : ''} · marge ${pct(M.margin)}</span></div>
     <table><tr><th>Issue</th><th>Proba</th><th>Cote juste</th><th>Meilleure</th><th>Value</th></tr>
     ${M.out.map((o) => `<tr class="${o.ev > 0.005 ? 'best' : ''}"><td>${esc(label(ev, mk, o.k, M.line))}</td><td class="num">${pct(o.p)}</td><td class="num">${f2(o.fairOdds)}</td><td class="num">${f2(o.best)}</td><td class="num">${sgn(o.ev)}</td></tr>`).join('')}</table>
     <div class="odds" style="grid-template-columns:repeat(${M.out.length},1fr);margin-top:10px">${M.out.map((o) => oddsBtn(ev, mk, o, M)).join('')}</div>
     <details style="margin-top:10px"><summary class="muted" style="font-size:12px">Détail par bookmaker</summary><table style="margin-top:6px"><tr><th>Bookmaker</th>${M.out.map((o) => `<th>${mk === 'h2h' ? SHORT[o.k] : o.k === 'over' ? '+' : '-'}</th>`).join('')}<th>Marge</th></tr>
     ${M.rows.map((r) => `<tr><td>${esc(r.title)}${r.sharp ? ' <span class="tag a">sharp</span>' : ''}</td>${r.odds.map((o, i) => `<td class="num" style="${o === M.out[i].best ? 'color:var(--grn);font-weight:700' : ''}">${f2(o)}</td>`).join('')}<td class="num">${pct(r.margin)}</td></tr>`).join('')}</table></details></div>`;
-  const P = ev.draw ? modelProbs(m) : null;
+  const P = mt ? modelProbs(m) : null;
   const formEd = (key) => `<div class="form" data-form="${key}">${m[key].map((r, i) => `<button class="${r}" data-fi="${i}">${r}</button>`).join('')}</div>`;
-  return `<div class="muted" style="margin-bottom:12px">${esc(ev.league)} · ${fmtTime(ev.time)}${ev.demo ? ' · <span class="tag a">démo</span>' : ''}</div>
-  ${tbl(A.h2h, 'h2h')}${tbl(A.totals, 'totals')}
-  ${ev.draw ? `<h2>Analyse d’avant-match <small>modèle de Poisson</small></h2>
+  const side = (name, tag, f1, f2k, l1, l2, fk) => `<div><div class="muted" style="font-size:12px;font-weight:700;margin-bottom:8px">${esc(name)}${tag}</div><div class="fld"><label>${l1}</label><input type="number" step="0.1" data-m="${f1}" value="${m[f1]}"></div><div class="fld"><label>${l2}</label><input type="number" step="1" data-m="${f2k}" value="${m[f2k]}"></div><label class="muted" style="font-size:11.5px">5 derniers matchs (touche pour changer)</label>${formEd(fk)}</div>`;
+  const modelHtml = !mt ? '' : `<h2>Analyse d’avant-match ${helpBtn('model')}</h2>
   <div class="card">
-    <div class="grid2"><div><div class="muted" style="font-size:12px;font-weight:700;margin-bottom:8px">${esc(ev.home)} (dom.)</div><div class="fld"><label>Buts marqués / match</label><input type="number" step="0.1" data-m="hs" value="${m.hs}"></div><div class="fld"><label>Buts encaissés / match</label><input type="number" step="0.1" data-m="hc" value="${m.hc}"></div><label class="muted" style="font-size:11.5px">5 derniers matchs</label>${formEd('fh')}</div>
-    <div><div class="muted" style="font-size:12px;font-weight:700;margin-bottom:8px">${esc(ev.away)} (ext.)</div><div class="fld"><label>Buts marqués / match</label><input type="number" step="0.1" data-m="as" value="${m.as}"></div><div class="fld"><label>Buts encaissés / match</label><input type="number" step="0.1" data-m="ac" value="${m.ac}"></div><label class="muted" style="font-size:11.5px">5 derniers matchs</label>${formEd('fa')}</div></div>
-    <div class="fld" style="margin-top:14px"><label>Poids du modèle dans l’analyse : <b>${Math.round(m.weight * 100)} %</b> (le reste = consensus du marché)</label><input type="range" min="0" max="0.7" step="0.05" data-m="weight" value="${m.weight}"></div>
-    <div class="line-r"><span>Intégrer ce modèle aux combinés</span><label class="sw"><input type="checkbox" id="mOn" ${state.models[ev.id] ? 'checked' : ''}><i></i></label></div>
-    ${P ? `<div class="res"><div class="row sp-b"><span class="muted">Buts attendus</span><b class="num">${P.lh.toFixed(2)} - ${P.la.toFixed(2)}</b></div>
+    ${mt === 'poisson'
+      ? `<div class="grid2">${side(ev.home, ' (dom.)', 'hs', 'hc', 'Buts marqués / match', 'Buts encaissés / match', 'fh').replace('step="1" data-m="hc"', 'step="0.1" data-m="hc"')}${side(ev.away, ' (ext.)', 'as', 'ac', 'Buts marqués / match', 'Buts encaissés / match', 'fa').replace('step="1" data-m="ac"', 'step="0.1" data-m="ac"')}</div>`
+      : `<div class="grid2">${side(ev.home, '', 'ra', 'wa', 'Classement mondial', '% de victoires (12 mois)', 'fh').replace('step="0.1" data-m="ra"', 'step="1" data-m="ra"')}${side(ev.away, '', 'rb', 'wb', 'Classement mondial', '% de victoires (12 mois)', 'fa').replace('step="0.1" data-m="rb"', 'step="1" data-m="rb"')}</div>`}
+    <div class="fld" style="margin-top:14px"><label>Poids de ton analyse : <b>${Math.round(m.weight * 100)} %</b> (le reste = avis du marché)</label><input type="range" min="0" max="0.7" step="0.05" data-m="weight" value="${m.weight}"></div>
+    <div class="line-r"><span>Utiliser cette analyse dans les calculs</span><label class="sw"><input type="checkbox" id="mOn" ${state.models[ev.id] ? 'checked' : ''}><i></i></label></div>
+    ${P && mt === 'poisson' ? `<div class="res"><div class="row sp-b"><span class="muted">Buts attendus</span><b class="num">${P.lh.toFixed(2)} - ${P.la.toFixed(2)}</b></div>
       <div class="row sp-b"><span class="muted">1 / N / 2</span><b class="num">${pct(P.home, 0)} / ${pct(P.draw, 0)} / ${pct(P.away, 0)}</b></div>
       <div class="row sp-b"><span class="muted">+1.5 / +2.5 / +3.5 buts</span><b class="num">${pct(P.over[1.5], 0)} / ${pct(P.over[2.5], 0)} / ${pct(P.over[3.5], 0)}</b></div>
       <div class="row sp-b"><span class="muted">Les deux équipes marquent</span><b class="num">${pct(P.btts, 0)}</b></div></div>
       <div class="muted" style="font-size:12px;margin:12px 0 6px">Scores exacts les plus probables</div>
       <div class="score-g">${P.grid.slice(0, 5).map((g) => `<div><b class="num">${g.i}-${g.j}</b><span class="num">${pct(g.p, 0)}</span></div>`).join('')}</div>` : ''}
-  </div>` : ''}
+    ${P && mt === 'rank' ? `<div class="res"><div class="row sp-b"><span class="muted">${esc(ev.home)} gagne</span><b class="num">${pct(P.home, 0)}</b></div><div class="row sp-b"><span class="muted">${esc(ev.away)} gagne</span><b class="num">${pct(P.away, 0)}</b></div><div class="row sp-b"><span class="muted">Avis du marché</span><b class="num">${A.h2h ? pct((A.h2h.out[0].pMarket ?? A.h2h.out[0].p), 0) + ' / ' + pct((A.h2h.out[1].pMarket ?? A.h2h.out[1].p), 0) : '-'}</b></div></div>` : ''}
+  </div>`;
+  return `<div class="muted" style="margin-bottom:12px">${esc(ev.league)} · ${fmtTime(ev.time)}${ev.demo ? ' · <span class="tag a">démo</span>' : ''}${ev.manual ? ' · <span class="tag n">ajouté par vous</span>' : ''}</div>
+  ${plainSummary(ev, A)}${tbl(A.h2h, 'h2h')}${tbl(A.totals, 'totals')}${modelHtml}
+  ${ev.manual ? '<button class="btn sec" id="delMatch" style="margin-top:14px">Supprimer ce match</button>' : ''}
   <p class="legal">Probabilités = cotes de tous les bookmakers sans leur marge (méthode puissance), pondérées vers les bookmakers les plus précis. Value = probabilité x meilleure cote - 1.</p>`;
 }
 function openMatch(id) {
   const ev = state.events.find((e) => e.id === id); if (!ev) return;
   openSheet(ev.home + ' - ' + ev.away, vMatchSheet(ev));
   const C = $('#sheetC');
-  const draft = JSON.parse(JSON.stringify(state.models[ev.id] || DEF_MODEL()));
+  let draft = state.models[ev.id] && state.models[ev.id].type === modelType(ev) ? JSON.parse(JSON.stringify(state.models[ev.id])) : DEF_MODEL(ev);
+  if (!draft.type) draft.type = 'poisson';
   const refresh = () => {
     const top = C.scrollTop;
     if (state.models[ev.id]) { state.models[ev.id] = draft; store.set('models', state.models); }
@@ -644,7 +850,8 @@ function openMatch(id) {
   };
   C.onclick = (e) => {
     const s = e.target.closest('[data-sel]'); if (s) { const x = selections([ev]).find((q) => q.id === s.dataset.sel); if (x) toggleSel(x); C.querySelectorAll('[data-sel]').forEach((b) => b.classList.toggle('sel', inSlip(b.dataset.sel))); return; }
-    const fb = e.target.closest('[data-fi]'); if (fb) { const k = fb.parentNode.dataset.form; const i = +fb.dataset.fi; draft[k][i] = { V: 'N', N: 'D', D: 'V' }[draft[k][i]] || 'V'; refresh(); }
+    const fb = e.target.closest('[data-fi]'); if (fb) { const k = fb.parentNode.dataset.form; const i = +fb.dataset.fi; draft[k][i] = { V: 'N', N: 'D', D: 'V' }[draft[k][i]] || 'V'; if (draft.type === 'rank' && draft[k][i] === 'N') draft[k][i] = 'D'; refresh(); }
+    if (e.target.closest('#delMatch')) { state.manual = state.manual.filter((x) => x.id !== ev.id); delete state.models[ev.id]; store.set('models', state.models); saveManual(); closeSheet(); render(); }
   };
   C.onchange = (e) => {
     const k = e.target.dataset.m; if (k) { draft[k] = +e.target.value; refresh(); return; }
@@ -687,6 +894,7 @@ function openSettings() {
   openSheet('Réglages', `
     <h2 style="margin-top:0">Source des cotes</h2>
     <div class="card"><div class="fld"><label>Clé API The Odds API (gratuite sur the-odds-api.com, 500 requêtes / mois)</label><input id="sKey" value="${esc(S.apiKey)}" placeholder="Collez votre clé" autocomplete="off"></div>
+    <div class="fld"><label>Marchés chargés</label><select id="sMk"><option value="h2h,totals" ${S.markets === 'h2h,totals' ? 'selected' : ''}>Résultat + plus/moins (2 crédits par compétition)</option><option value="h2h" ${S.markets === 'h2h' ? 'selected' : ''}>Résultat seulement (1 crédit par compétition)</option></select></div>
     <div class="fld" style="margin-bottom:0"><label>Région des bookmakers</label><select id="sReg">${[['eu', 'Europe'], ['uk', 'Royaume-Uni'], ['fr', 'France'], ['us', 'États-Unis'], ['au', 'Australie']].map(([v, l]) => `<option value="${v}" ${S.region === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
     <h2>Gestion de la bankroll</h2>
     <div class="card"><div class="grid2"><div class="fld"><label>Bankroll (€)</label><input type="number" id="sBank" value="${S.bankroll}"></div><div class="fld"><label>Mise max. (% bankroll)</label><input type="number" id="sMax" value="${S.maxStakePct * 100}"></div></div>
@@ -694,11 +902,14 @@ function openSettings() {
     <h2>Moteur d’analyse</h2>
     <div class="card"><div class="grid2"><div class="fld"><label>Bookmakers minimum</label><input type="number" id="sMin" value="${S.minBooks}"></div><div class="fld"><label>Poids books « sharp »</label><input type="number" id="sSharp" value="${S.sharpWeight}"></div></div></div>
     <button class="btn" id="sSave" style="margin-top:16px">Enregistrer et actualiser</button>
-    <p class="legal">Parimetric v1.0 · Les clés et données restent sur votre téléphone.<br>Les jeux d’argent sont interdits aux mineurs. Jouer comporte des risques : endettement, dépendance. Appelez le 09 74 75 13 13 (appel non surtaxé).</p>`);
+    <button class="btn sec" id="sGuide" style="margin-top:8px">Revoir le guide d’utilisation</button>
+    <p class="legal">Parimetric v1.1 · Les clés et données restent sur votre téléphone.<br>Les jeux d’argent sont interdits aux mineurs. Jouer comporte des risques : endettement, dépendance. Appelez le 09 74 75 13 13 (appel non surtaxé).</p>`);
   $('#sSave').onclick = () => {
-    S = Object.assign(S, { apiKey: $('#sKey').value.trim(), region: $('#sReg').value, bankroll: +$('#sBank').value || 100, maxStakePct: (+$('#sMax').value || 5) / 100, kellyFrac: +$('#sKelly').value, minBooks: +$('#sMin').value || 1, sharpWeight: +$('#sSharp').value || 1 });
+    const mk = $('#sMk').value, reg = $('#sReg').value; if (mk !== S.markets || reg !== S.region) state.cache = {};
+    S = Object.assign(S, { apiKey: $('#sKey').value.trim(), region: reg, markets: mk, bankroll: +$('#sBank').value || 100, maxStakePct: (+$('#sMax').value || 5) / 100, kellyFrac: +$('#sKelly').value, minBooks: +$('#sMin').value || 1, sharpWeight: +$('#sSharp').value || 1 });
     store.set('settings', S); closeSheet(); loadOdds();
   };
+  $('#sGuide').onclick = openGuide;
 }
 
 /* ============================== Navigation ============================== */
@@ -706,42 +917,54 @@ const TABS = [['home', 'Accueil', 'home'], ['matches', 'Matchs', 'list'], ['comb
 function go(t) { state.tab = t; $('#main').scrollTop = 0; render(); }
 function render() {
   $('#nav').innerHTML = TABS.map(([k, l, i]) => `<button class="${state.tab === k ? 'on' : ''}" data-tab="${k}">${ic(i)}<span>${l}</span></button>`).join('');
-  const sp = [{ key: 'all', label: 'Tous' }, ...SPORTS.filter((s) => state.source === 'live' || TEAMS[s.key])];
-  $('#sports').innerHTML = sp.map((s) => `<button class="sp ${state.sport === s.key ? 'on' : ''}" data-sport="${s.key}">${s.label}</button>`).join('');
+  const present = new Set([...state.events.map((e) => groupOf(e.sport)), ...state.catalog.map((c) => c.group)]);
+  const sp = [{ id: 'all', label: 'Tous' }, ...GROUPS.filter((g) => ['foot', 'tennis', 'basket', 'badminton'].includes(g.id) || present.has(g.id))];
+  $('#sports').innerHTML = sp.map((g) => `<button class="sp ${state.sport === g.id ? 'on' : ''}" data-sport="${g.id}">${g.label}</button>`).join('');
   $('#sports').style.display = state.tab === 'tools' || state.tab === 'track' ? 'none' : '';
   $('#bankVal').textContent = eur(S.bankroll + state.bets.filter((b) => b.status !== 'open').reduce((a, b) => a + (b.status === 'won' ? b.stake * (b.odds - 1) : b.status === 'lost' ? -b.stake : 0), 0)).replace(',00', '');
+  REG = {}; regN = 0;
   $('#main').innerHTML = { home: vHome, matches: vMatches, combos: vCombos, tools: vTools, track: vTrack }[state.tab]();
   updSlip();
 }
 document.addEventListener('click', (e) => {
+  const hb = e.target.closest('[data-help]'); if (hb) { e.stopPropagation(); return showHelp(hb.dataset.help); }
+  if (e.target.closest('#pop')) return;
   const t = e.target.closest('[data-tab]'); if (t) return go(t.dataset.tab);
-  const sp = e.target.closest('[data-sport]'); if (sp) { state.sport = sp.dataset.sport; store.set('sport', state.sport); if (state.source === 'live' && sp.dataset.sport !== 'all' && !state.events.some((x) => x.sport === state.sport)) return loadOdds(); if (state.source === 'demo') state.events = demoEvents(); return render(); }
+  const sp = e.target.closest('[data-sport]'); if (sp) { state.sport = sp.dataset.sport; state.comp = 'all'; store.set('sport', state.sport); if (state.source === 'live') return loadOdds(); return render(); }
   if (e.target.closest('#sheet')) return;
+  if (e.target.closest('#addMatch') || e.target.closest('#addMatch2')) return openAddMatch();
+  if (e.target.closest('#loadAll')) return loadOdds({ all: true });
   const s = e.target.closest('[data-sel]'); if (s) { const x = selections(state.events).find((q) => q.id === s.dataset.sel); if (x) toggleSel(x); return; }
   const ev = e.target.closest('[data-ev]'); if (ev) return openMatch(ev.dataset.ev);
-  const cb = e.target.closest('[data-combo]'); if (cb) { const c = lastCombos[+cb.dataset.combo] || buildCombos(Object.assign({}, state.combo, { legs: 2, minOdds: 1.5, maxOdds: 3, mode: 'safe', minP: 0.6 })).combos[+cb.dataset.combo]; if (c) { state.slip = []; c.legs.forEach(toggleSel); openSlip(); } return; }
+  const cb = e.target.closest('[data-combo]'); if (cb) { const c = REG[cb.dataset.combo]; if (c) { state.slip = []; c.legs.forEach(toggleSel); openSlip(); } return; }
   const md = e.target.closest('[data-mode]'); if (md) { state.combo.mode = md.dataset.mode; saveCombo(); return render(); }
   const lg = e.target.closest('[data-legs]'); if (lg) { state.combo.legs = +lg.dataset.legs; if (state.combo.legs >= 4 && state.combo.maxOdds < 8) state.combo.maxOdds = 12; saveCombo(); return render(); }
   const tl = e.target.closest('[data-tool]'); if (tl) return openTool(tl.dataset.tool);
   const st = e.target.closest('[data-st]'); if (st) { state.bets[+st.dataset.i].status = st.dataset.st; store.set('bets', state.bets); return render(); }
   const dl = e.target.closest('[data-del]'); if (dl) { state.bets.splice(+dl.dataset.del, 1); store.set('bets', state.bets); return render(); }
-  if (e.target.closest('#reload')) return loadOdds();
+  if (e.target.closest('#reload')) return loadOdds({ force: true, all: false });
 });
 document.addEventListener('change', (e) => {
   if (e.target.closest('#sheet')) return;
+  if (e.target.id === 'compSel') { state.comp = e.target.value; return render(); }
   const id = e.target.id; const c = state.combo;
   if (id === 'cMin') c.minOdds = +e.target.value || 1; else if (id === 'cMax') c.maxOdds = +e.target.value || 100; else if (id === 'cP') c.minP = +e.target.value; else if (id === 'cH') c.h2h = e.target.checked; else if (id === 'cD') c.dc = e.target.checked; else if (id === 'cT') c.totals = e.target.checked; else return;
   saveCombo(); render();
 });
 document.addEventListener('input', (e) => { if (e.target.id === 'cP') $('#pLbl').textContent = pct(+e.target.value, 0); });
 function saveCombo() { store.set('comboCfg', state.combo); }
-$('#slip').onclick = openSlip; $('#ov').onclick = closeSheet; $('#sheetX').onclick = closeSheet; $('#btnSettings').onclick = openSettings; $('#bankChip').onclick = () => go('track');
+$('#slip').onclick = openSlip; $('#ov').onclick = closeSheet; $('#pov').onclick = hideHelp; $('#btnHelp').onclick = openGuide; $('#sheetX').onclick = closeSheet; $('#btnSettings').onclick = openSettings; $('#bankChip').onclick = () => go('track');
 
 /* ============================== Démarrage ============================== */
 (function boot() {
-  const cache = store.get('cache', null);
-  if (S.apiKey && cache && Date.now() - cache.t < 20 * 6e4) { state.events = cache.events; state.source = 'live'; render(); }
-  else loadOdds();
+  refreshEvents();
+  if (S.apiKey) {
+    const c = store.get('catalog', null); if (c && c.key === S.apiKey) state.catalog = c.list;
+    state.base = Object.values(state.cache).flatMap((x) => x.events); state.source = state.base.length ? 'live' : 'demo'; refreshEvents();
+  }
+  render();
+  loadOdds();
+  if (!store.get('seenGuide', 0)) openGuide();
 })();
 </script>
 </body>

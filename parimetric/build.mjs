@@ -12,7 +12,7 @@ const ROOT = path.resolve(HERE, '..');
 const T = path.join(ROOT, 'tools', 'android');
 const OUT = path.join(ROOT, 'dist');
 const W = fs.mkdtempSync(path.join(os.tmpdir(), 'parimetric-'));
-const cfg = { pkg: 'com.parimetric.app', label: 'Parimetric', versionCode: 1, versionName: '1.0.0', minSdk: 24, targetSdk: 29 };
+const cfg = { pkg: 'com.parimetric.app', label: 'Parimetric', versionCode: 2, versionName: '1.1.0', minSdk: 24, targetSdk: 29 };
 
 const ID = { theme: 0x01010000, label: 0x01010001, icon: 0x01010002, name: 0x01010003, exported: 0x01010010, configChanges: 0x0101001f, screenOrientation: 0x0101001e, minSdkVersion: 0x0101020c, versionCode: 0x0101021b, versionName: 0x0101021c, windowSoftInputMode: 0x0101022b, targetSdkVersion: 0x01010270, allowBackup: 0x01010280, hardwareAccelerated: 0x010102d3 };
 const THEME_MATERIAL_NOACTIONBAR = 0x0103022e;
