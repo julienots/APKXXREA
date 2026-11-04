@@ -13,7 +13,19 @@ export interface Candidate {
   usedBy: string[];
   library: boolean;
   loading: boolean;
+  /** no visible widget at all (e.g. a game-engine surface): rebuilt, it would show a blank screen */
+  empty: boolean;
   hint?: string;
+}
+
+const VISIBLE = new Set(['text', 'button', 'imagebutton', 'edit', 'check', 'switch', 'radio', 'list', 'web', 'progress', 'seek', 'spinner']);
+/** True when the tree contains at least one widget a user can actually see. */
+export function hasVisibleContent(n: UiNode | null | undefined): boolean {
+  if (!n || n.props?.visibility === 'gone') return false;
+  if (VISIBLE.has(n.kind) && (n.kind !== 'text' || !!(n.props.text || n.props.hint))) return true;
+  if ((n.kind === 'image' || n.kind === 'imagebutton') && (n.props.src?.image || n.props.src?.color)) return true;
+  if (n.props?.background?.image) return true;
+  return (n.children ?? []).some(hasVisibleContent);
 }
 
 const LIB_CLASS = /^(android|androidx|kotlin|kotlinx|java|javax|com\.google|com\.android|com\.facebook|com\.unity3d|com\.applovin|com\.ironsource|io\.flutter|com\.squareup|org\.apache|com\.bumptech)\./;
@@ -26,7 +38,7 @@ function walk(n: UiNode, f: (n: UiNode) => void) {
   n.children.forEach((c) => walk(c, f));
 }
 
-export function classifyScreen(L: Loaded, key: string, usedBy: string[], root?: UiNode | null): Pick<Candidate, 'library' | 'loading' | 'hint'> {
+export function classifyScreen(L: Loaded, key: string, usedBy: string[], root?: UiNode | null): Pick<Candidate, 'library' | 'loading' | 'empty' | 'hint'> {
   const own = (L.analysis.package ?? '').split('.').slice(0, 2).join('.');
   const library = usedBy.length > 0 ? usedBy.every((c) => !(own && c.startsWith(own + '.')) && LIB_CLASS.test(c)) : LIB_LAYOUT.test(key);
   let progress = false, inputs = false, textHit = false;
@@ -40,12 +52,15 @@ export function classifyScreen(L: Loaded, key: string, usedBy: string[], root?: 
   }
   const nameHit = LOADING_NAME.test(key) || usedBy.some((c) => LOADING_NAME.test(c.split('.').pop() ?? ''));
   const loading = (progress && !inputs && (textHit || nameHit)) || (/splash/i.test(key) || usedBy.some((c) => /splash/i.test(c)));
-  const hint = loading
+  const empty = root ? !hasVisibleContent(root) : false;
+  const hint = empty
+    ? "Écran sans aucun élément visible (surface dessinée par du code ou un moteur de jeu) : reconstruit, il serait blanc."
+    : loading
     ? "Écran de chargement / téléchargement : dans l'app d'origine, du code passe ensuite à un autre écran. Reconstruit seul, il resterait affiché indéfiniment — réglez « écran suivant »."
     : library
       ? "Écran fourni par une bibliothèque intégrée (pas une interface propre à l'application)."
       : undefined;
-  return { library, loading, hint };
+  return { library, loading, empty, hint };
 }
 
 export async function projectDefaults(L: Loaded | undefined, stored: StoredScreen[]) {
@@ -61,13 +76,22 @@ export async function projectDefaults(L: Loaded | undefined, stored: StoredScree
     for (const s of stored) candidates.push({ key: s.key, origin: s.origin, usedBy: usedByOf(s.key), ...classifyScreen(L, s.key, usedByOf(s.key), s.root) });
     for (const l of layouts) {
       if (stored.some((s) => s.key === l.name)) continue;
-      const tree = l.usedBy.length || LOADING_NAME.test(l.name) ? (await layoutTree(L, l.name).catch(() => null))?.root : null;
+      const tree = (await layoutTree(L, l.name).catch(() => null))?.root ?? null;
       candidates.push({ key: l.name, origin: 'original', usedBy: l.usedBy, ...classifyScreen(L, l.name, l.usedBy, tree) });
     }
     const used = new Set(g.screens.flatMap((s) => s.layouts));
-    const selected = candidates.filter((c) => (used.has(c.key) || c.origin !== 'original') && !c.library).slice(0, 20);
+    const selected = candidates.filter((c) => (used.has(c.key) || c.origin !== 'original') && !c.library && (!c.empty || c.origin !== 'original')).slice(0, 20);
     o.screens = selected.map((c) => ({ key: c.key, launcher: c.key === launcherLayout }));
+    if (!o.screens.some((s) => s.launcher) && o.screens[0]) o.screens[0].launcher = true;
     const launcher = candidates.find((c) => c.key === launcherLayout);
+    const engines = L.analysis.libraries.filter((l) => ['unity', 'godot', 'cocos', 'flutter', 'react-native', 'xamarin', 'qt'].includes(l.id)).map((l) => l.name);
+    if (!selected.length) {
+      warnings.push(
+        `Aucun écran de cette application n'est récupérable en XML${engines.length ? ` : son interface est entièrement rendue par ${engines.join(', ')}` : ''}. Un projet reconstruit afficherait un écran blanc. Le jeu ou l'interface d'origine (graphismes, logique, niveaux) ne peut pas être recréé à partir de l'APK. Pour une app à vous, créez vos écrans avec la reconstruction assistée (UI Reconstructor).`,
+      );
+    } else if (launcher?.empty) {
+      warnings.push(`L'écran de lancement d'origine « ${launcher.key} » est vide (surface dessinée par du code) : il n'est pas sélectionné.`);
+    }
     const next = selected.find((c) => c.key !== launcherLayout && !c.loading);
     if (launcher?.loading) {
       if (next) {

@@ -5,7 +5,7 @@ import { ago, rememberProject, useAsync, toInputColor, fromInputColor, cssColor 
 import { Badge, Card, Empty, ErrorBox, Loading, PageHeader, Spinner, Notice } from '../components/ui';
 import { IBox, IHammer, ITrash, IPlus } from '../components/icons';
 
-interface Defaults { options: ProjectOptions; candidates: { key: string; origin: string; usedBy: string[]; library?: boolean; loading?: boolean; hint?: string }[]; features: Feature[]; launcherLayout?: string; warnings?: string[] }
+interface Defaults { options: ProjectOptions; candidates: { key: string; origin: string; usedBy: string[]; library?: boolean; loading?: boolean; empty?: boolean; hint?: string }[]; features: Feature[]; launcherLayout?: string; warnings?: string[] }
 
 const FEATURES = [
   { id: 'login', label: 'Connexion', desc: 'Comptes locaux sécurisés (à brancher sur votre API)' },
@@ -162,6 +162,7 @@ export function Wizard({ analysisId, existing, onDone }: { analysisId?: string; 
                 <input type="checkbox" className="accent-volt-500" checked={has(c.key)} onChange={() => toggleScreen(c.key)} />
                 <span className="mono min-w-0 flex-1 truncate text-xs">{c.key}</span>
                 {c.origin !== 'original' && <Badge tone={c.origin === 'assisted' ? 'good' : 'cyan'}>{c.origin === 'assisted' ? 'assisté' : 'modifié'}</Badge>}
+                {c.empty && <Badge tone="bad" title={c.hint}>vide</Badge>}
                 {c.loading && <Badge tone="warn" title={c.hint}>chargement</Badge>}
                 {c.library && <Badge tone="muted" title={c.hint}>bibliothèque</Badge>}
                 {c.usedBy.length > 0 && <Badge tone="blue">{c.usedBy[0].split('.').pop()}</Badge>}

@@ -51,3 +51,13 @@ test('launcher download screen with no other XML screen produces an explicit war
   assert.ok(d.warnings.some((w) => /aucun autre écran XML/.test(w)));
   assert.equal(d.options.screens.find((s) => s.key === 'activity_download')?.next, undefined);
 });
+
+test('game-engine app (empty surface screen) is flagged and never selected', async () => {
+  const L = await analyse('engine-game.apk');
+  assert.ok(L.analysis.libraries.some((l) => l.id === 'unity'));
+  const d = await projectDefaults(L, []);
+  const c = d.candidates.find((x) => x.key === 'activity_game')!;
+  assert.equal(c.empty, true);
+  assert.equal(d.options.screens.length, 0);
+  assert.ok(d.warnings.some((w) => /Aucun écran de cette application n'est récupérable en XML : son interface est entièrement rendue par Unity/.test(w)));
+});

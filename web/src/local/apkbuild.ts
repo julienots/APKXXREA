@@ -354,6 +354,14 @@ export async function buildApkOnDevice(inp: DeviceBuildInput): Promise<DeviceBui
       delete v.next;
     } else if (v.next) log(`  ✔ ${k} → ${v.next} après ${(v.delayMs! / 1000).toFixed(1)} s`);
   }
+  const { hasVisibleContent } = await import('../../../server/src/engines/project-defaults');
+  if (launcher && screens[launcher] && !hasVisibleContent(screens[launcher].root)) {
+    check(
+      'Écran de lancement avec du contenu visible',
+      false,
+      `« ${launcher} » ne contient aucun élément visible (interface dessinée par du code ou un moteur de jeu comme Unity) : l'application serait un écran blanc. Créez un écran avec la reconstruction assistée et choisissez-le comme écran de lancement`,
+    );
+  }
   check('Au moins un écran', Object.keys(screens).length > 0, `${Object.keys(screens).length} écran(s), ${imgByEntry.size} image(s)`);
   const app = { appName: o.appName, colors: o.colors, launcher, screens, features, loginFirst: !!features.login };
   assets.set('assets/appxray/app.json', enc.encode(JSON.stringify(app)));
