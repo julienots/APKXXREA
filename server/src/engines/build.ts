@@ -203,7 +203,7 @@ async function buildLite(j: Job, ctl: AbortController, src: string, work: string
   const sources = [...(await walkFiles(path.join(main, 'java'), (f) => f.endsWith('.java'))), ...(await walkFiles(path.join(work, 'gen'), (f) => f.endsWith('.java')))];
   await fs.promises.writeFile(path.join(work, 'sources.txt'), sources.map((s) => `"${s.replace(/\\/g, '/')}"`).join('\n'));
   await fs.promises.mkdir(path.join(work, 'classes'), { recursive: true });
-  await step(j, ctl, rec, src, `javac (${sources.length} fichiers)`, 'javac', 'javac', ['-J-Xmx1g', '--release', '8', '-encoding', 'UTF-8', '-nowarn', '-Xlint:none', '-cp', T.androidStubs, '-d', path.join(work, 'classes'), '@' + path.join(work, 'sources.txt')], work);
+  await step(j, ctl, rec, src, `javac (${sources.length} fichiers)`, 'javac', 'javac', ['-J-Xmx1g', '--release', '8', '-encoding', 'UTF-8', '-nowarn', '-Xlint:none', '-cp', fs.existsSync(T.androidAll) ? T.androidAll : T.androidStubs, '-d', path.join(work, 'classes'), '@' + path.join(work, 'sources.txt')], work);
   await step(j, ctl, rec, src, 'dx (bytecode → DEX)', 'dx', 'java', [...jvmArgs(), '-cp', T.dxJar, 'com.android.dx.command.Main', '--dex', `--min-sdk-version=${Math.min(meta.minSdk, 25)}`, `--output=${path.join(work, 'classes.dex')}`, path.join(work, 'classes')], work);
   await step(j, ctl, rec, src, 'Assemblage de l’APK', 'zip', 'zip', ['-j', '-q', path.join(work, 'base.apk'), path.join(work, 'classes.dex')], work);
   const { ks, pass } = await ensureKeystore(j);

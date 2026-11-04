@@ -5,3 +5,9 @@ tools/
 *.log
 .DS_Store
 server/test/fixtures/settings.apk
+android/*.p12
+android/*.p12.pass
+android/build/
+android/app/build/
+android/.gradle/
+android/local.properties

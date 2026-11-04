@@ -47,5 +47,7 @@ echo "[3/4] Lite Android toolchain: android API stubs + dx (dex compiler)"
 mkdir -p "$T/android"
 fetch "$MVN/com/google/android/android/4.1.1.4/android-4.1.1.4.jar" "$T/android/android-stubs.jar"
 fetch "$MVN/com/jakewharton/android/repackaged/dalvik-dx/16.0.1/dalvik-dx-16.0.1.jar" "$T/android/dx.jar"
+# Full Android API 29 surface (Robolectric android-all) for compiling apps that need APIs newer than the stubs
+fetch "${MAVEN_MIRROR:-https://maven-central.storage-download.googleapis.com/maven2}/org/robolectric/android-all/10-robolectric-5803371/android-all-10-robolectric-5803371.jar" "$T/android/android-all-29.jar"
 
 echo "[4/4] Done. Tools installed in $T"

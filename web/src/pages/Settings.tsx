@@ -84,6 +84,14 @@ export default function Settings() {
               </div>
             </div>
           </Card>
+          {'AppxrayAndroid' in window && (
+            <Card title="Application Android" className="xl:col-span-2">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div className="flex-1 text-sm">Cette application est connectée au serveur APPXRAY <span className="mono text-cyan-x">{location.origin}</span>.</div>
+                <button className="btn-ghost" onClick={() => (window as unknown as { AppxrayAndroid: { changeServer(): void } }).AppxrayAndroid.changeServer()}>Changer de serveur</button>
+              </div>
+            </Card>
+          )}
           <Card title="Stockage & suppression" className="xl:col-span-2">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
               <div className="flex-1 text-sm">Espace utilisé : <strong>{bytes(s.storage.bytes)}</strong> ({s.storage.files.toLocaleString('fr-FR')} fichiers). Chaque analyse ou projet peut aussi être supprimé individuellement.</div>

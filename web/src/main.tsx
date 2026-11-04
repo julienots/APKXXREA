@@ -14,6 +14,22 @@ import ProjectEditor from './pages/ProjectEditor';
 import Builder from './pages/Builder';
 import Settings from './pages/Settings';
 import { Empty } from './components/ui';
+import { TOKEN_KEY } from './lib/api';
+
+// The Android app passes the access token once in the start URL: store it, then remove it from the address.
+{
+  const q = new URLSearchParams(location.search);
+  const t = q.get('token');
+  if (t) {
+    try {
+      localStorage.setItem(TOKEN_KEY, t);
+    } catch {
+      /* ignore */
+    }
+    q.delete('token');
+    history.replaceState(null, '', location.pathname + (q.toString() ? '?' + q : '') + location.hash);
+  }
+}
 
 function App() {
   return (

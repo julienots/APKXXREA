@@ -25,6 +25,20 @@ Optionnel : Android SDK (`ANDROID_HOME`) + Gradle pour le mode de compilation co
 
 Variables : `PORT`, `HOST`, `APPXRAY_DATA` (stockage), `APPXRAY_TOOLS`, `APPXRAY_TOKEN` (jeton exigé sur l'API — obligatoire si le serveur est exposé), `APPXRAY_MAX_UPLOAD_MB`, `APPXRAY_TOOL_TIMEOUT_S`, `APPXRAY_TOOL_MEM_MB`, `APPXRAY_JOBS`.
 
+## Application Android (APK)
+
+`npm run build:android` → `dist/appxray.apk` (compilé hors ligne par la chaîne APPXRAY : aapt2 + javac contre `android.jar` API 29 + dx + jarsigner).
+Le projet `android/` s'ouvre aussi dans Android Studio (Gradle).
+
+JADX, Apktool, aapt2 et la compilation ne peuvent pas s'exécuter dans le bac à sable d'une application Android : l'APK est
+l'application mobile d'APPXRAY qui se connecte à un **serveur de traitement APPXRAY** (PC, VPS ou Docker, lancé avec `HOST=0.0.0.0`
+et de préférence `APPXRAY_TOKEN`). Au premier lancement, on saisit l'adresse du serveur et le jeton ; ensuite toute l'interface
+est disponible : import d'APK depuis le stockage du téléphone, analyse, exploration, édition UI, génération, compilation, et
+téléchargement des projets / APK compilés dans *Téléchargements*. « Paramètres → Changer de serveur » permet d'en changer.
+
+Caractéristiques : minSdk 24, targetSdk 29, signature v1 (clé générée localement, `android/appxray-release.p12`, non versionnée —
+conservez-la pour pouvoir publier des mises à jour), trafic HTTP en clair autorisé pour les serveurs du réseau local (préférez HTTPS hors LAN).
+
 ## Architecture
 
 ```

@@ -51,6 +51,7 @@ export function toolPaths() {
     aapt2: process.env.APPXRAY_AAPT2 ?? path.join(T, 'aapt2', 'aapt2'),
     frameworkJar: path.join(T, 'aapt2', 'android-framework.jar'),
     androidStubs: path.join(T, 'android', 'android-stubs.jar'),
+    androidAll: path.join(T, 'android', 'android-all-29.jar'),
     dxJar: path.join(T, 'android', 'dx.jar'),
   };
 }
