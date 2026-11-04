@@ -12,3 +12,5 @@ android/app/build/
 android/.gradle/
 android/local.properties
 android/app/src/main/assets/www/
+poker-coach/*.p12
+poker-coach/*.p12.pass

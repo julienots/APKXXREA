@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Poker Coach</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="logo">♠</span> Poker Coach <small>entraînement</small></div>
+</header>
+
+<main>
+  <!-- ============ ANALYSE ============ -->
+  <section id="tab-analyse" class="tab active">
+    <div class="panel">
+      <div class="row-title">Ta main</div>
+      <div class="slots" id="hero-slots"></div>
+      <div class="row-title">Board <span class="hint">flop · turn · river</span></div>
+      <div class="slots" id="board-slots"></div>
+      <div id="picker" class="picker"></div>
+      <div class="actions-inline">
+        <button class="ghost" id="btn-random">Main au hasard</button>
+        <button class="ghost" id="btn-clear">Tout effacer</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="grid2">
+        <label>Adversaires
+          <select id="opp-count">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            <option>6</option><option>7</option><option>8</option>
+          </select>
+        </label>
+        <label>Profil adverse
+          <select id="opp-profile">
+            <option value="100">Mains au hasard</option>
+            <option value="50">Large (top 50 %)</option>
+            <option value="30" selected>Moyen (top 30 %)</option>
+            <option value="15">Serré (top 15 %)</option>
+            <option value="7">Très serré (top 7 %)</option>
+          </select>
+        </label>
+        <label>Pot (avec la mise adverse)
+          <input id="pot" type="number" inputmode="decimal" min="0" step="0.5" placeholder="ex. 12">
+        </label>
+        <label>Mise à suivre
+          <input id="tocall" type="number" inputmode="decimal" min="0" step="0.5" placeholder="0 = check possible">
+        </label>
+      </div>
+      <button class="primary" id="btn-analyse">Analyser la main</button>
+    </div>
+
+    <div id="result"></div>
+  </section>
+
+  <!-- ============ PRÉFLOP ============ -->
+  <section id="tab-preflop" class="tab">
+    <div class="panel">
+      <div class="seg" id="pf-mode">
+        <button data-v="cash" class="on">Cash game 6-max</button>
+        <button data-v="mtt">Tournoi (tapis/couché)</button>
+      </div>
+      <div id="pf-cash-opts">
+        <div class="seg small" id="pf-sit">
+          <button data-v="open" class="on">Premier à relancer</button>
+          <button data-v="vs">Face à une relance</button>
+        </div>
+      </div>
+      <div id="pf-mtt-opts" hidden>
+        <div class="row-title">Tapis effectif</div>
+        <div class="seg small" id="pf-stack">
+          <button data-v="5">5 BB</button><button data-v="10" class="on">10 BB</button>
+          <button data-v="15">15 BB</button><button data-v="20">20 BB</button>
+        </div>
+      </div>
+      <div class="row-title">Ta position</div>
+      <div class="seg small" id="pf-pos"></div>
+    </div>
+    <div class="panel">
+      <div id="pf-grid" class="rgrid"></div>
+      <div id="pf-legend" class="legend"></div>
+      <div id="pf-info" class="info"></div>
+    </div>
+  </section>
+
+  <!-- ============ QUIZ ============ -->
+  <section id="tab-quiz" class="tab">
+    <div class="panel">
+      <div class="seg small" id="qz-mode">
+        <button data-v="cash" class="on">Préflop cash</button>
+        <button data-v="mtt">Préflop tournoi</button>
+        <button data-v="post">Après le flop</button>
+      </div>
+      <div class="score" id="qz-score"></div>
+    </div>
+    <div class="panel" id="qz-card"></div>
+  </section>
+
+  <!-- ============ AIDE ============ -->
+  <section id="tab-aide" class="tab">
+    <div class="panel prose">
+      <h2>Comment s'en servir</h2>
+      <p><b>Analyse</b> : entre ta main, le board, le nombre d'adversaires et leur profil. L'appli simule des milliers de
+        donnes (Monte-Carlo) et te donne ton <b>équité</b> (part du pot qui te revient en moyenne), tes <b>outs</b> et la
+        décision rentable selon la <b>cote du pot</b>.</p>
+      <p><b>Préflop</b> : tableaux de départ par position. Rouge = relancer (ou tapis), vert = suivre, gris = se coucher.</p>
+      <p><b>Quiz</b> : des situations au hasard ; choisis ton action, l'appli corrige et explique.</p>
+
+      <h2>Les 4 règles qui rapportent</h2>
+      <ol>
+        <li><b>Position</b> : joue plus de mains au bouton et au cut-off, beaucoup moins sous le pistolet (UTG).</li>
+        <li><b>Cote du pot</b> : suis seulement si ton équité ≥ mise à suivre ÷ (pot + mise à suivre).</li>
+        <li><b>Règle du 2 et du 4</b> : outs × 4 au flop (2 cartes à venir), outs × 2 au turn ≈ % de toucher.</li>
+        <li><b>Mise de valeur</b> : avec une main forte, mise pour être payé par pire ; ne slow-play pas tout.</li>
+      </ol>
+
+      <h2>Lexique</h2>
+      <dl>
+        <dt>UTG, MP, CO, BTN, SB, BB</dt><dd>Positions : sous le pistolet, milieu, cut-off, bouton, petite et grosse blinde.</dd>
+        <dt>s / o</dt><dd>Suited (même couleur) / offsuit (couleurs différentes). AKs = As-Roi assortis.</dd>
+        <dt>Range</dt><dd>Ensemble des mains qu'un joueur peut avoir dans une situation.</dd>
+        <dt>3-bet</dt><dd>Sur-relance face à une première relance.</dd>
+        <dt>Outs</dt><dd>Cartes restantes qui améliorent ta main en main probablement gagnante.</dd>
+        <dt>BB</dt><dd>Grosse blinde, unité de mesure des tapis.</dd>
+      </dl>
+
+      <h2>À savoir</h2>
+      <p class="warn">Poker Coach est un outil d'<b>étude</b>, à utiliser entre les sessions. Utiliser une aide en temps réel
+        pendant une partie en argent réel est interdit par les sites (Winamax, Betclic…) et entraîne la fermeture du
+        compte et la saisie des gains.</p>
+      <p>Les tableaux sont des bases simplifiées, pas des solutions parfaites : adapte-toi aux joueurs en face.</p>
+      <p>Le poker comporte une part de hasard : même avec les meilleures décisions, on perd des sessions. Fixe-toi un
+        budget et ne cours jamais après tes pertes. Besoin d'aide : <b>Joueurs Info Service — 09 74 75 13 13</b>
+        (appel non surtaxé, 7j/7).</p>
+    </div>
+  </section>
+</main>
+
+<nav class="tabs">
+  <button data-tab="analyse" class="on"><span>🂡</span>Analyse</button>
+  <button data-tab="preflop"><span>▦</span>Préflop</button>
+  <button data-tab="quiz"><span>?</span>Quiz</button>
+  <button data-tab="aide"><span>i</span>Aide</button>
+</nav>
+
+<script src="order.js"></script>
+<script src="poker.js"></script>
+<script src="charts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
