@@ -2,7 +2,7 @@
   "name": "appxray",
   "private": true,
   "version": "0.1.0",
-  "description": "APPXRAY \u2014 APK analysis, reconstruction and rebuild platform",
+  "description": "APPXRAY — APK analysis, reconstruction and rebuild platform",
   "workspaces": [
     "server",
     "web"
@@ -16,6 +16,7 @@
     "typecheck": "npm run typecheck -w server && npm run typecheck -w web",
     "build:android": "bash scripts/build-android.sh",
     "build:runtime": "bash scripts/build-runtime.sh",
-    "gen:framework": "npx tsx scripts/gen-framework.mts"
+    "gen:framework": "npx tsx scripts/gen-framework.mts",
+    "build:parimetric": "node parimetric/build.mjs"
   }
 }

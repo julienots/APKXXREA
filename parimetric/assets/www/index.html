@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Parimetric</title>
+<style>
+:root{
+  --bg:#0B0D12;--s1:#12151D;--s2:#181C27;--s3:#202536;--line:#262C3D;--line2:#31384C;
+  --tx:#EDF0F6;--mu:#8C95A8;--mu2:#5E667A;
+  --red:#E3182D;--red2:#B8101F;--redbg:rgba(227,24,45,.12);
+  --grn:#1FC27A;--grnbg:rgba(31,194,122,.12);--amb:#F2A93B;--ambbg:rgba(242,169,59,.12);--blu:#4C8DFF;
+  --r:12px;--nav:62px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg);color:var(--tx);font:14px/1.4 -apple-system,"Roboto","Segoe UI",system-ui,sans-serif;height:100%;overflow:hidden}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+input,select{background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%;outline:none}
+input:focus,select:focus{border-color:var(--red)}
+.num{font-variant-numeric:tabular-nums}
+#app{display:flex;flex-direction:column;height:100%}
+header{display:flex;align-items:center;gap:10px;padding:12px 16px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
+.brand b{font-weight:800;letter-spacing:.14em;font-size:15px}
+.brand b span{color:var(--red)}
+.chip-bank{display:flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--line);border-radius:20px;padding:6px 11px;font-weight:700;font-size:13px}
+.chip-bank i{width:7px;height:7px;border-radius:50%;background:var(--grn);display:block}
+.ibtn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:var(--s2);border:1px solid var(--line)}
+.ibtn svg{width:18px;height:18px}
+.sports{display:flex;gap:8px;overflow-x:auto;padding:10px 16px;border-bottom:1px solid var(--line);scrollbar-width:none;flex-shrink:0}
+.sports::-webkit-scrollbar,.hs::-webkit-scrollbar{display:none}
+.sp{flex-shrink:0;padding:7px 13px;border-radius:18px;background:var(--s1);border:1px solid var(--line);color:var(--mu);font-weight:600;font-size:12.5px;white-space:nowrap}
+.sp.on{background:var(--red);border-color:var(--red);color:#fff}
+main{flex:1;overflow-y:auto;padding:14px 16px calc(var(--nav) + 90px);-webkit-overflow-scrolling:touch}
+nav{position:fixed;left:0;right:0;bottom:0;height:var(--nav);background:var(--s1);border-top:1px solid var(--line);display:flex;z-index:20}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--mu2);font-size:10.5px;font-weight:600;letter-spacing:.02em}
+nav button svg{width:21px;height:21px}
+nav button.on{color:var(--tx)}
+nav button.on svg{color:var(--red)}
+h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mu);font-weight:700;margin:20px 0 10px;display:flex;align-items:center;justify-content:space-between}
+h2:first-child{margin-top:4px}
+h2 small{letter-spacing:0;text-transform:none;font-weight:500;color:var(--mu2)}
+.card{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+.card+.card{margin-top:10px}
+.banner{border-radius:var(--r);padding:12px 14px;font-size:12.5px;display:flex;gap:10px;align-items:flex-start;margin-bottom:12px;background:var(--ambbg);color:#F6C77A;border:1px solid rgba(242,169,59,.25)}
+.banner.ok{background:var(--grnbg);color:#7FE0B2;border-color:rgba(31,194,122,.25)}
+.banner svg{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px}
+.kpi span{display:block;color:var(--mu);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:600}
+.kpi b{display:block;font-size:19px;font-weight:800;margin-top:3px}
+.ev{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);padding:12px 12px 12px;margin-bottom:10px}
+.ev-top{display:flex;justify-content:space-between;align-items:center;color:var(--mu);font-size:11.5px;margin-bottom:8px;gap:8px}
+.ev-top .lg{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ev-teams{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+.ev-teams div{font-weight:700;font-size:14.5px;line-height:1.35}
+.more{color:var(--mu);font-size:12px;font-weight:600;display:flex;align-items:center;gap:2px;white-space:nowrap}
+.odds{display:grid;gap:6px}
+.o{background:var(--s2);border:1px solid var(--line);border-radius:9px;padding:7px 4px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;position:relative;min-width:0}
+.o small{color:var(--mu);font-size:10.5px;font-weight:600}
+.o b{font-size:15px;font-weight:800}
+.o em{font-style:normal;font-size:10px;color:var(--mu2);font-weight:600}
+.o.sel{background:var(--red);border-color:var(--red)}
+.o.sel small,.o.sel em{color:rgba(255,255,255,.8)}
+.o.val::after{content:"";position:absolute;top:5px;right:5px;width:6px;height:6px;border-radius:50%;background:var(--grn)}
+.tag{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;letter-spacing:.02em;white-space:nowrap}
+.tag.g{background:var(--grnbg);color:var(--grn)}.tag.r{background:var(--redbg);color:#FF5A6A}.tag.a{background:var(--ambbg);color:var(--amb)}.tag.n{background:var(--s3);color:var(--mu)}
+.row{display:flex;align-items:center;gap:10px}
+.sp-b{justify-content:space-between}
+.muted{color:var(--mu)}.mu2{color:var(--mu2)}
+.pick{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.pick:last-child{border-bottom:0;padding-bottom:2px}.pick:first-child{padding-top:2px}
+.pick .m{flex:1;min-width:0}
+.pick .m b{display:block;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick .m span{display:block;color:var(--mu);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pick .od{text-align:right}
+.pick .od b{font-size:15px;font-weight:800;display:block}
+.bar{height:5px;background:var(--s3);border-radius:4px;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:var(--red);border-radius:4px}
+.bar.g i{background:var(--grn)}
+.seg{display:flex;background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:3px}
+.seg button{flex:1;padding:8px 6px;border-radius:8px;font-weight:700;font-size:12.5px;color:var(--mu)}
+.seg button.on{background:var(--s3);color:var(--tx);box-shadow:inset 0 0 0 1px var(--line2)}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:11px;background:var(--red);color:#fff;font-weight:800;letter-spacing:.03em;font-size:14px}
+.btn:active{background:var(--red2)}
+.btn.sec{background:var(--s2);border:1px solid var(--line2);color:var(--tx)}
+.btn.sm{width:auto;padding:8px 12px;font-size:12.5px;border-radius:9px}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:11.5px;color:var(--mu);font-weight:600;margin-bottom:6px;letter-spacing:.03em}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.combo{background:var(--s1);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;overflow:hidden}
+.combo-h{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--s2);border-bottom:1px solid var(--line)}
+.combo-h .rk{font-weight:800;font-size:12px;color:var(--mu);letter-spacing:.08em}
+.combo-b{padding:4px 14px}
+.combo-f{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.combo-f div{padding:9px 6px;text-align:center;border-right:1px solid var(--line)}
+.combo-f div:last-child{border-right:0}
+.combo-f span{display:block;font-size:10px;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;font-weight:600}
+.combo-f b{font-size:14px;font-weight:800}
+.slip{position:fixed;left:12px;right:12px;bottom:calc(var(--nav) + 10px);background:var(--red);border-radius:13px;padding:11px 14px;display:none;align-items:center;gap:12px;z-index:19;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.slip.show{display:flex}
+.slip .cnt{background:#fff;color:var(--red);font-weight:900;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:13px}
+.slip .t{flex:1;font-weight:800;color:#fff}
+.slip .t small{display:block;font-weight:600;opacity:.8;font-size:11px}
+.slip .c{font-size:18px;font-weight:900;color:#fff}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:30;opacity:0;pointer-events:none;transition:opacity .2s}
+.ov.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:92%;background:var(--bg);border-top:1px solid var(--line2);border-radius:18px 18px 0 0;z-index:31;transform:translateY(100%);transition:transform .25s ease;display:flex;flex-direction:column}
+.sheet.show{transform:none}
+.sheet-h{display:flex;align-items:center;gap:10px;padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.sheet-h b{flex:1;font-size:15.5px;font-weight:800}
+.sheet-c{overflow-y:auto;padding:14px 16px 28px}
+.grab{width:38px;height:4px;border-radius:3px;background:var(--line2);margin:8px auto 0}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th{color:var(--mu);font-weight:600;text-align:right;padding:6px 4px;font-size:11px;border-bottom:1px solid var(--line)}
+td{padding:7px 4px;text-align:right;border-bottom:1px solid var(--line)}
+th:first-child,td:first-child{text-align:left}
+tr.best td{color:var(--grn);font-weight:700}
+.hs{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+.hs>.card{flex:0 0 78%;margin:0!important}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;gap:6px}
+.stat3 span{display:block;color:var(--mu);font-size:10.5px;font-weight:600}
+.stat3 b{font-size:17px;font-weight:800}
+.form{display:flex;gap:4px}
+.form button{width:30px;height:30px;border-radius:7px;background:var(--s2);border:1px solid var(--line);font-weight:800;font-size:12px;color:var(--mu)}
+.form button.V{background:var(--grnbg);border-color:rgba(31,194,122,.4);color:var(--grn)}
+.form button.N{background:var(--s3);color:var(--tx)}
+.form button.D{background:var(--redbg);border-color:rgba(227,24,45,.4);color:#FF5A6A}
+.score-g{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.score-g div{background:var(--s2);border:1px solid var(--line);border-radius:8px;padding:7px 2px;text-align:center}
+.score-g b{display:block;font-size:14px}
+.score-g span{font-size:10.5px;color:var(--mu)}
+.empty{text-align:center;color:var(--mu);padding:40px 20px}
+.empty svg{width:40px;height:40px;color:var(--mu2);margin-bottom:10px}
+.tool{display:flex;align-items:center;gap:12px;padding:14px;background:var(--s1);border:1px solid var(--line);border-radius:var(--r);margin-bottom:10px;width:100%;text-align:left}
+.tool .ic{width:40px;height:40px;border-radius:10px;background:var(--redbg);color:var(--red);display:grid;place-items:center;flex-shrink:0}
+.tool .ic svg{width:20px;height:20px}
+.tool b{display:block;font-size:14px}.tool span{color:var(--mu);font-size:12px}
+.res{background:var(--s2);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:6px}
+.res .row{padding:4px 0}
+.toast{position:fixed;left:50%;top:18px;transform:translate(-50%,-20px);background:var(--s3);border:1px solid var(--line2);padding:10px 16px;border-radius:10px;font-weight:600;font-size:13px;z-index:50;opacity:0;transition:all .2s;pointer-events:none;max-width:90%}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.spin{width:22px;height:22px;border:3px solid var(--line2);border-top-color:var(--red);border-radius:50%;animation:sp 0.8s linear infinite;margin:30px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+.legal{color:var(--mu2);font-size:11px;text-align:center;margin-top:22px;line-height:1.5}
+.sw{position:relative;width:42px;height:24px;flex-shrink:0}
+.sw input{opacity:0;position:absolute;inset:0;z-index:1}
+.sw i{position:absolute;inset:0;background:var(--s3);border-radius:12px;transition:.2s}
+.sw i::after{content:"";position:absolute;width:18px;height:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sw input:checked+i{background:var(--red)}
+.sw input:checked+i::after{left:21px}
+.line-r{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line);gap:10px}
+.line-r:last-child{border-bottom:0}
+.spark{width:100%;height:70px;display:block}
+.hist{padding:11px 0;border-bottom:1px solid var(--line)}
+.hist:last-child{border-bottom:0}
+input[type=range]{padding:0;border:0;background:none;accent-color:var(--red)}
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="15" fill="#E3182D"/><path d="M19 47V17h15.5c7 0 11.5 4.3 11.5 10.6S41.5 38.2 34.5 38.2H27V47z" fill="none" stroke="#fff" stroke-width="5.5" stroke-linejoin="round"/><path d="M27 31.4h7c2.6 0 4.2-1.5 4.2-3.8s-1.6-3.8-4.2-3.8h-7z" fill="#E3182D"/><circle cx="45.5" cy="45.5" r="4" fill="#fff"/></svg>
+      <b>PARI<span>METRIC</span></b>
+    </div>
+    <div class="chip-bank num" id="bankChip"><i></i><span id="bankVal">0 €</span></div>
+    <button class="ibtn" id="btnSettings" aria-label="Réglages"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg></button>
+  </header>
+  <div class="sports" id="sports"></div>
+  <main id="main"></main>
+</div>
+<div class="slip" id="slip"><div class="cnt" id="slipN">0</div><div class="t">Coupon<small id="slipP">Probabilité</small></div><div class="c num" id="slipC">1.00</div></div>
+<nav id="nav"></nav>
+<div class="ov" id="ov"></div>
+<div class="sheet" id="sheet"><div class="grab"></div><div class="sheet-h"><b id="sheetT"></b><button class="ibtn" id="sheetX" aria-label="Fermer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="sheet-c" id="sheetC"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+/* ============================== Utilitaires ============================== */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const f2 = (x) => (isFinite(x) ? x.toFixed(2) : '-');
+const pct = (x, d = 1) => (isFinite(x) ? (x * 100).toFixed(d) + ' %' : '-');
+const sgn = (x, d = 1) => (isFinite(x) ? (x >= 0 ? '+' : '') + (x * 100).toFixed(d) + ' %' : '-');
+const eur = (x) => (isFinite(x) ? x.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €' : '-');
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('pm.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('pm.' + k, JSON.stringify(v)); } catch (e) {} },
+};
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('show'), 2200); }
+const ICON = {
+  home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/>',
+  list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+  combo: '<path d="M4 18l5-6 4 3 7-9"/><path d="M15 6h5v5"/>',
+  tools: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 12h2M14 12h2M8 16h2M14 16h2"/>',
+  track: '<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
+  info: '<circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/>',
+  check: '<path d="M5 12l5 5L20 7"/>',
+  chev: '<path d="M9 6l6 6-6 6"/>',
+  arb: '<path d="M7 7h10l-3-3M17 17H7l3 3"/>',
+  kelly: '<path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5"/>',
+  conv: '<path d="M4 9h16M4 15h16M9 4l-2 16M17 4l-2 16"/>',
+  sys: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  ball: '<circle cx="12" cy="12" r="9"/><path d="M12 7l4 3-1.5 5h-5L8 10z"/>',
+  trash: '<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
+};
+const ic = (n, sz) => `<svg viewBox="0 0 24 24" ${sz ? `style="width:${sz}px;height:${sz}px"` : ''} fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[n]}</svg>`;
+
+/* ============================== Réglages / état ============================== */
+const DEF = { apiKey: '', region: 'eu', bankroll: 100, kellyFrac: 0.25, minBooks: 3, sharpWeight: 3, maxStakePct: 0.05 };
+let S = Object.assign({}, DEF, store.get('settings', {}));
+const SPORTS = [
+  { key: 'soccer_france_ligue_one', label: 'Ligue 1', t: 'foot' },
+  { key: 'soccer_epl', label: 'Premier League', t: 'foot' },
+  { key: 'soccer_spain_la_liga', label: 'LaLiga', t: 'foot' },
+  { key: 'soccer_italy_serie_a', label: 'Serie A', t: 'foot' },
+  { key: 'soccer_germany_bundesliga', label: 'Bundesliga', t: 'foot' },
+  { key: 'soccer_uefa_champs_league', label: 'Ligue des Champions', t: 'foot' },
+  { key: 'soccer_france_ligue_two', label: 'Ligue 2', t: 'foot' },
+  { key: 'basketball_nba', label: 'NBA', t: 'us' },
+  { key: 'icehockey_nhl', label: 'NHL', t: 'us' },
+  { key: 'basketball_euroleague', label: 'Euroleague', t: 'us' },
+];
+let state = {
+  tab: 'home',
+  sport: store.get('sport', 'all'),
+  events: [],
+  source: 'demo',
+  loading: false,
+  remaining: '',
+  slip: store.get('slip', []),
+  bets: store.get('bets', []),
+  combo: Object.assign({ legs: 3, minOdds: 2.0, maxOdds: 6, mode: 'safe', minP: 0.55, dc: true, totals: true, h2h: true }, store.get('comboCfg', {})),
+  models: store.get('models', {}),
+};
+const SHARP = ['pinnacle', 'betfair_ex_eu', 'betfair_ex_uk', 'matchbook', 'smarkets'];
+
+/* ============================== Réseau ============================== */
+const pending = {};
+window.__nativeCb = (id, code, body, rem) => { const p = pending[id]; if (!p) return; delete pending[id]; p({ code, body, rem }); };
+function httpGet(url) {
+  if (window.Native && Native.get) {
+    return new Promise((res) => { const id = 'r' + Date.now() + Math.random().toString(36).slice(2); pending[id] = res; Native.get(url, id); });
+  }
+  return fetch(url).then(async (r) => ({ code: r.status, body: await r.text(), rem: r.headers.get('x-requests-remaining') || '' })).catch((e) => ({ code: 0, body: JSON.stringify({ message: String(e) }), rem: '' }));
+}
+async function loadOdds() {
+  if (!S.apiKey) { state.source = 'demo'; state.events = demoEvents(); render(); return; }
+  state.loading = true; render();
+  const keys = state.sport === 'all' ? SPORTS.slice(0, 6).map((s) => s.key) : [state.sport];
+  const all = []; let err = '';
+  for (const k of keys) {
+    const url = `https://api.the-odds-api.com/v4/sports/${k}/odds/?apiKey=${encodeURIComponent(S.apiKey)}&regions=${S.region}&markets=h2h,totals&oddsFormat=decimal&dateFormat=iso`;
+    const r = await httpGet(url);
+    if (r.rem) state.remaining = r.rem;
+    if (r.code !== 200) {
+      try { err = JSON.parse(r.body).message || ('HTTP ' + r.code); } catch (e) { err = 'HTTP ' + r.code; }
+      if (r.code === 401 || r.code === 429) break; else continue;
+    }
+    try { for (const e of JSON.parse(r.body)) all.push(fromApi(e, k)); } catch (e) { err = 'Réponse illisible'; }
+  }
+  state.loading = false;
+  if (all.length) { state.events = all.filter((e) => Object.keys(e.books).length); state.source = 'live'; store.set('cache', { t: Date.now(), events: state.events }); toast(`${state.events.length} matchs chargés`); }
+  else { state.source = 'demo'; state.events = demoEvents(); toast(err ? 'Source : ' + err : 'Aucun match disponible'); }
+  render();
+}
+function fromApi(e, sportKey) {
+  const sp = SPORTS.find((s) => s.key === sportKey);
+  const ev = { id: e.id, sport: sportKey, league: sp ? sp.label : e.sport_title, home: e.home_team, away: e.away_team, time: e.commence_time, books: {}, draw: sportKey.startsWith('soccer') };
+  const pts = {};
+  for (const b of e.bookmakers || []) for (const m of b.markets || []) if (m.key === 'totals') for (const o of m.outcomes) pts[o.point] = (pts[o.point] || 0) + 1;
+  const mainLine = +Object.keys(pts).sort((a, b) => pts[b] - pts[a] || Math.abs(a - 2.5) - Math.abs(b - 2.5))[0];
+  for (const b of e.bookmakers || []) {
+    const bk = { title: b.title, sharp: SHARP.includes(b.key) };
+    for (const m of b.markets || []) {
+      if (m.key === 'h2h') {
+        const g = (n) => (m.outcomes.find((o) => o.name === n) || {}).price;
+        bk.h2h = { home: g(e.home_team), draw: g('Draw'), away: g(e.away_team) };
+        if (!bk.h2h.draw) delete bk.h2h.draw;
+      } else if (m.key === 'totals') {
+        const ov = m.outcomes.find((o) => o.name === 'Over' && o.point === mainLine), un = m.outcomes.find((o) => o.name === 'Under' && o.point === mainLine);
+        if (ov && un) bk.totals = { line: mainLine, over: ov.price, under: un.price };
+      }
+    }
+    if (bk.h2h || bk.totals) ev.books[b.key] = bk;
+  }
+  return ev;
+}
+
+/* ============================== Démo (données simulées) ============================== */
+function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+const TEAMS = {
+  soccer_france_ligue_one: ['Paris SG', 'Marseille', 'Monaco', 'Lille', 'Lyon', 'Nice', 'Lens', 'Rennes', 'Strasbourg', 'Brest', 'Toulouse', 'Nantes', 'Auxerre', 'Angers', 'Le Havre', 'Lorient'],
+  soccer_epl: ['Liverpool', 'Arsenal', 'Man City', 'Chelsea', 'Newcastle', 'Aston Villa', 'Tottenham', 'Brighton', 'Man United', 'West Ham', 'Fulham', 'Everton'],
+  soccer_spain_la_liga: ['Real Madrid', 'Barcelona', 'Atletico', 'Athletic', 'Villarreal', 'Betis', 'Sociedad', 'Sevilla', 'Valencia', 'Girona'],
+  soccer_italy_serie_a: ['Inter', 'Napoli', 'Juventus', 'Milan', 'Atalanta', 'Roma', 'Lazio', 'Bologna', 'Fiorentina', 'Torino'],
+  soccer_germany_bundesliga: ['Bayern', 'Leverkusen', 'Dortmund', 'Leipzig', 'Stuttgart', 'Frankfurt', 'Freiburg', 'Wolfsburg', 'Mainz', 'Gladbach'],
+  basketball_nba: ['Celtics', 'Nuggets', 'Thunder', 'Knicks', 'Bucks', 'Lakers', 'Warriors', 'Heat', 'Suns', 'Mavericks'],
+};
+function poissonProbs(lh, la, max = 10) {
+  const P = (l, k) => Math.exp(-l) * Math.pow(l, k) / fact(k);
+  let h = 0, d = 0, a = 0, over = {}, btts = 0; const grid = [];
+  for (let i = 0; i <= max; i++) for (let j = 0; j <= max; j++) {
+    const p = P(lh, i) * P(la, j); grid.push({ i, j, p });
+    if (i > j) h += p; else if (i === j) d += p; else a += p;
+    if (i > 0 && j > 0) btts += p;
+    for (const L of [0.5, 1.5, 2.5, 3.5, 4.5]) if (i + j > L) over[L] = (over[L] || 0) + p;
+  }
+  const t = h + d + a;
+  return { home: h / t, draw: d / t, away: a / t, over, btts, grid: grid.sort((x, y) => y.p - x.p) };
+}
+function fact(n) { let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+function demoEvents() {
+  const day = Math.floor(Date.now() / 864e5);
+  const R = rng(day * 7919);
+  const out = []; const bookNames = ['Book A', 'Book B', 'Book C', 'Book D', 'Book E', 'Exchange X'];
+  for (const [sk, teams] of Object.entries(TEAMS)) {
+    if (state.sport !== 'all' && state.sport !== sk) continue;
+    const t = teams.slice().sort(() => R() - 0.5);
+    const isFoot = sk.startsWith('soccer');
+    for (let m = 0; m + 1 < t.length && m < 8; m += 2) {
+      const sh = 1 - teams.indexOf(t[m]) / teams.length, sa = 1 - teams.indexOf(t[m + 1]) / teams.length;
+      const ev = { id: `demo-${sk}-${m}`, sport: sk, league: (SPORTS.find((s) => s.key === sk) || {}).label, home: t[m], away: t[m + 1], time: new Date((day + 1 + Math.floor(m / 4)) * 864e5 + (15 + (m % 3) * 2) * 36e5).toISOString(), books: {}, draw: isFoot, demo: true };
+      let truth;
+      if (isFoot) { const lh = 1.05 + 1.3 * sh - 0.5 * sa + 0.15, la = 0.85 + 1.2 * sa - 0.45 * sh; const p = poissonProbs(Math.max(.35, lh), Math.max(.3, la)); truth = { home: p.home, draw: p.draw, away: p.away, over: p.over[2.5], line: 2.5 }; }
+      else { const ph = clamp(0.5 + 0.55 * (sh - sa) + 0.04, 0.08, 0.92); truth = { home: ph, away: 1 - ph, over: 0.5, line: sk === 'basketball_nba' ? 224.5 : 5.5 }; }
+      bookNames.forEach((bn, bi) => {
+        if (R() < 0.12 && bi > 1) return;
+        const mg = bi === 5 ? 0.025 : 0.045 + R() * 0.045;
+        const nz = () => 1 + (R() - 0.5) * 0.06;
+        const q = (p) => Math.max(1.01, +(1 / (p * nz() * (1 + mg))).toFixed(2));
+        const bk = { title: bn, sharp: bi === 5, h2h: { home: q(truth.home), away: q(truth.away) } };
+        if (isFoot) bk.h2h.draw = q(truth.draw);
+        bk.totals = { line: truth.line, over: q(truth.over), under: q(1 - truth.over) };
+        ev.books['b' + bi] = bk;
+      });
+      out.push(ev);
+    }
+  }
+  return out;
+}
+
+/* ============================== Moteur d'analyse ============================== */
+// Probabilités "justes" : suppression de la marge (méthode puissance, robuste au biais favori/outsider),
+// consensus pondéré entre bookmakers (les books "sharp" / bourses pèsent plus), meilleure cote, dispersion.
+function devig(odds) {
+  const inv = odds.map((o) => 1 / o); const sum = inv.reduce((a, b) => a + b, 0);
+  if (!(sum > 1)) return inv.map((x) => x / sum);
+  let lo = 1, hi = 3; for (let i = 0; i < 40; i++) { const k = (lo + hi) / 2; const s = inv.reduce((a, x) => a + Math.pow(x, k), 0); s > 1 ? (lo = k) : (hi = k); }
+  const k = (lo + hi) / 2; return inv.map((x) => Math.pow(x, k));
+}
+function analyseMarket(ev, market) {
+  const keys = market === 'h2h' ? (ev.draw ? ['home', 'draw', 'away'] : ['home', 'away']) : ['over', 'under'];
+  const rows = [];
+  for (const [bk, b] of Object.entries(ev.books)) {
+    const m = b[market]; if (!m || keys.some((k) => !(m[k] > 1))) continue;
+    if (market === 'totals' && rows.length && m.line !== rows[0].line) continue;
+    const odds = keys.map((k) => m[k]); const fair = devig(odds);
+    rows.push({ bk, title: b.title, sharp: b.sharp, odds, fair, margin: odds.reduce((a, o) => a + 1 / o, 0) - 1, line: m.line });
+  }
+  if (!rows.length) return null;
+  const w = rows.map((r) => (r.sharp ? S.sharpWeight : 1)); const W = w.reduce((a, b) => a + b, 0);
+  const out = keys.map((k, i) => {
+    const p = rows.reduce((a, r, j) => a + r.fair[i] * w[j], 0) / W;
+    const sd = Math.sqrt(rows.reduce((a, r) => a + Math.pow(r.fair[i] - p, 2), 0) / rows.length);
+    let best = 0, bestBk = ''; rows.forEach((r) => { if (r.odds[i] > best) { best = r.odds[i]; bestBk = r.title; } });
+    const avg = rows.reduce((a, r) => a + r.odds[i], 0) / rows.length;
+    return { k, p, sd, best, bestBk, avg, fairOdds: 1 / p, ev: p * best - 1 };
+  });
+  const tot = out.reduce((a, o) => a + o.p, 0); out.forEach((o) => { o.p /= tot; o.fairOdds = 1 / o.p; o.ev = o.p * o.best - 1; });
+  return { keys, rows, out, line: rows[0].line, margin: rows.reduce((a, r) => a + r.margin, 0) / rows.length, books: rows.length };
+}
+function blendWithModel(ev, A) {
+  const m = state.models[ev.id]; if (!m || !A.h2h || !ev.draw) return A;
+  const P = modelProbs(m); if (!P) return A; const wm = m.weight ?? 0.3;
+  const mix = (o, pm) => { o.pMarket = o.p; o.pModel = pm; o.p = (1 - wm) * o.p + wm * pm; o.fairOdds = 1 / o.p; o.ev = o.p * o.best - 1; };
+  A.h2h.out.forEach((o) => mix(o, P[o.k]));
+  if (A.totals && P.over[A.totals.line] != null) A.totals.out.forEach((o) => mix(o, o.k === 'over' ? P.over[A.totals.line] : 1 - P.over[A.totals.line]));
+  A.model = P; return A;
+}
+function analyse(ev) {
+  const A = { h2h: analyseMarket(ev, 'h2h'), totals: analyseMarket(ev, 'totals') };
+  return blendWithModel(ev, A);
+}
+function conf(o, books) { // indice de fiabilité 0-100 : probabilité, accord des bookmakers, profondeur de marché
+  const agree = clamp(1 - o.sd / 0.04, 0, 1); const depth = clamp(books / 6, 0, 1);
+  return Math.round(clamp(o.p * 70 + agree * 18 + depth * 12, 0, 100));
+}
+function label(ev, market, k, line) {
+  if (market === 'h2h') return k === 'home' ? ev.home : k === 'away' ? ev.away : 'Match nul';
+  if (market === 'dc') return { '1X': ev.home + ' ou nul', 'X2': 'Nul ou ' + ev.away, '12': ev.home + ' ou ' + ev.away }[k];
+  return (k === 'over' ? 'Plus de ' : 'Moins de ') + line + (ev.sport.startsWith('soccer') ? ' buts' : ' pts');
+}
+const SHORT = { home: '1', draw: 'N', away: '2', over: '+', under: '-' };
+function selections(evs) {
+  const out = [];
+  for (const ev of evs) {
+    if (new Date(ev.time) < Date.now() - 5 * 6e4) continue;
+    const A = analyse(ev);
+    for (const mk of ['h2h', 'totals']) {
+      const M = A[mk]; if (!M || M.books < Math.min(S.minBooks, Object.keys(ev.books).length)) continue;
+      for (const o of M.out) out.push({ id: `${ev.id}|${mk}|${o.k}`, ev, market: mk, k: o.k, line: M.line, p: o.p, odds: o.best, book: o.bestBk, fair: o.fairOdds, evv: o.ev, conf: conf(o, M.books), name: label(ev, mk, o.k, M.line), est: false });
+    }
+    if (A.h2h && ev.draw) {
+      const g = Object.fromEntries(A.h2h.out.map((o) => [o.k, o]));
+      const mg = A.h2h.margin;
+      for (const [k, a, b] of [['1X', 'home', 'draw'], ['X2', 'draw', 'away'], ['12', 'home', 'away']]) {
+        const p = g[a].p + g[b].p; const odds = Math.max(1.01, +(1 / (p * (1 + mg * 0.8))).toFixed(2));
+        out.push({ id: `${ev.id}|dc|${k}`, ev, market: 'dc', k, p, odds, book: 'cote estimée', fair: 1 / p, evv: p * odds - 1, conf: Math.round(clamp(p * 70 + 18 * clamp(1 - (g[a].sd + g[b].sd) / 0.06, 0, 1) + 12 * clamp(A.h2h.books / 6, 0, 1), 0, 100)), name: label(ev, 'dc', k), est: true });
+      }
+    }
+  }
+  return out;
+}
+function kelly(p, o) { const b = o - 1; return b > 0 ? Math.max(0, (b * p - (1 - p)) / b) : 0; }
+function stakeFor(p, o) { return Math.min(S.bankroll * S.maxStakePct, S.bankroll * kelly(p, o) * S.kellyFrac); }
+
+// Générateur de combinés : énumère les combinaisons (une sélection max par match), filtre la cote cible,
+// classe selon le mode. Probabilité jointe = produit (matchs indépendants).
+function buildCombos(cfg) {
+  let sel = selections(visibleEvents()).filter((s) => s.p >= cfg.minP && s.odds > 1.03 && (cfg.h2h || s.market !== 'h2h') && (cfg.totals || s.market !== 'totals') && (cfg.dc || s.market !== 'dc'));
+  const score = (s) => (cfg.mode === 'value' ? s.evv + s.p * 0.05 : cfg.mode === 'bal' ? Math.log(s.odds) * s.p + s.evv : s.p + s.conf / 1000);
+  const byEv = {}; for (const s of sel) (byEv[s.ev.id] = byEv[s.ev.id] || []).push(s);
+  sel = Object.values(byEv).flatMap((a) => a.sort((x, y) => score(y) - score(x)).slice(0, 2)).sort((x, y) => score(y) - score(x)).slice(0, cfg.legs >= 5 ? 30 : 46);
+  const K = cfg.legs; const res = []; const cur = [];
+  let guard = 0;
+  (function rec(start, P, O) {
+    if (++guard > 1500000) return;
+    if (cur.length === K) {
+      if (O >= cfg.minOdds && O <= cfg.maxOdds) res.push({ legs: cur.slice(), P, O, EV: P * O - 1 });
+      return;
+    }
+    for (let i = start; i < sel.length; i++) {
+      const s = sel[i]; if (cur.some((c) => c.ev.id === s.ev.id)) continue;
+      if (O * s.odds > cfg.maxOdds * 1.0001) continue; // toute cote > 1 : on ne redescendra pas sous le max
+      cur.push(s); rec(i + 1, P * s.p, O * s.odds); cur.pop();
+    }
+  })(0, 1, 1);
+  const rank = cfg.mode === 'value' ? (c) => c.EV : cfg.mode === 'bal' ? (c) => c.P * Math.log(c.O) + c.EV * 0.5 : (c) => c.P;
+  res.sort((a, b) => rank(b) - rank(a));
+  const out = []; const used = {};
+  for (const c of res) { const key = c.legs.map((l) => l.id).join(); const overlap = c.legs.filter((l) => used[l.id] >= 2).length; if (overlap >= Math.ceil(K / 2) && out.length > 4) continue; c.legs.forEach((l) => (used[l.id] = (used[l.id] || 0) + 1)); out.push(c); if (out.length >= 15) break; }
+  return { combos: out, pool: sel.length };
+}
+function visibleEvents() { return state.events.filter((e) => state.sport === 'all' || e.sport === state.sport); }
+
+/* Modèle statistique pré-match (Poisson) : attaque/défense + forme récente */
+function formScore(f) { return (f || []).reduce((a, r, i) => a + (r === 'V' ? 3 : r === 'N' ? 1 : r === 'D' ? 0 : 1.4) * (1 + (4 - i) * 0.1), 0) / (5 * 1.2 * 3); }
+function modelProbs(m) {
+  const lgH = 1.5, lgA = 1.2;
+  const fh = formScore(m.fh), fa = formScore(m.fa);
+  const lh = clamp((m.hs / lgH) * (m.ac / lgH) * lgH * (1 + (fh - fa) * 0.25), 0.2, 4.5);
+  const la = clamp((m.as / lgA) * (m.hc / lgA) * lgA * (1 + (fa - fh) * 0.25), 0.15, 4);
+  if (!isFinite(lh) || !isFinite(la)) return null;
+  const P = poissonProbs(lh, la); P.lh = lh; P.la = la; return P;
+}
+
+/* ============================== Coupon ============================== */
+function inSlip(id) { return state.slip.some((s) => s.id === id); }
+function toggleSel(s) {
+  const i = state.slip.findIndex((x) => x.id === s.id);
+  if (i >= 0) state.slip.splice(i, 1);
+  else {
+    state.slip = state.slip.filter((x) => x.evId !== s.ev.id);
+    state.slip.push({ id: s.id, evId: s.ev.id, match: s.ev.home + ' - ' + s.ev.away, name: s.name, market: s.market, odds: s.odds, p: s.p, book: s.book, time: s.ev.time });
+  }
+  store.set('slip', state.slip); updSlip();
+}
+function slipTotals() { const O = state.slip.reduce((a, s) => a * s.odds, 1), P = state.slip.reduce((a, s) => a * s.p, 1); return { O, P, EV: P * O - 1 }; }
+function updSlip() {
+  const el = $('#slip'); const n = state.slip.length; el.classList.toggle('show', n > 0 && !sheetOpen);
+  if (!n) return; const t = slipTotals();
+  $('#slipN').textContent = n; $('#slipC').textContent = f2(t.O); $('#slipP').textContent = 'Probabilité estimée ' + pct(t.P);
+  document.querySelectorAll('[data-sel]').forEach((b) => b.classList.toggle('sel', inSlip(b.dataset.sel)));
+}
+function openSlip() {
+  const t = slipTotals(); const k = stakeFor(t.P, t.O);
+  openSheet('Coupon', `
+    ${state.slip.map((s, i) => `<div class="pick"><div class="m"><b>${esc(s.name)}</b><span>${esc(s.match)} · ${esc(s.book)}</span></div><div class="od"><b class="num">${f2(s.odds)}</b><span class="tag n">${pct(s.p, 0)}</span></div><button class="ibtn" data-rm="${i}" aria-label="Retirer">${ic('trash', 16)}</button></div>`).join('')}
+    <div class="card" style="margin-top:14px"><div class="stat3"><div><span>Cote totale</span><b class="num">${f2(t.O)}</b></div><div><span>Probabilité</span><b class="num">${pct(t.P)}</b></div><div><span>Espérance</span><b class="num" style="color:${t.EV >= 0 ? 'var(--grn)' : '#FF5A6A'}">${sgn(t.EV)}</b></div></div></div>
+    <div class="fld" style="margin-top:14px"><label>Mise (€) · suggestion Kelly ${Math.round(S.kellyFrac * 100)} % : ${eur(k)}${k === 0 ? ' (valeur négative : mise minimale conseillée)' : ''}</label><input id="stake" type="number" inputmode="decimal" value="${(k > 0 ? k : Math.max(1, S.bankroll * 0.01)).toFixed(2)}"></div>
+    <div class="row sp-b" style="margin-bottom:14px"><span class="muted">Gain potentiel</span><b class="num" id="gain">-</b></div>
+    <button class="btn" id="saveBet">${ic('check', 18)} Enregistrer le pari dans le suivi</button>
+    <button class="btn sec" style="margin-top:8px" id="clearSlip">Vider le coupon</button>
+    <p class="legal">La probabilité affichée est une estimation issue des cotes du marché. Elle ne garantit aucun résultat.</p>`);
+  const upd = () => { $('#gain').textContent = eur((+$('#stake').value || 0) * t.O); }; upd();
+  $('#stake').oninput = upd;
+  $('#sheetC').onclick = (e) => {
+    const rm = e.target.closest('[data-rm]'); if (rm) { state.slip.splice(+rm.dataset.rm, 1); store.set('slip', state.slip); updSlip(); state.slip.length ? openSlip() : closeSheet(); render(); }
+  };
+  $('#saveBet').onclick = () => {
+    const st = +$('#stake').value; if (!(st > 0)) return toast('Mise invalide');
+    state.bets.unshift({ id: Date.now(), date: new Date().toISOString(), legs: state.slip.slice(), odds: t.O, p: t.P, stake: st, status: 'open' });
+    store.set('bets', state.bets); state.slip = []; store.set('slip', []); closeSheet(); toast('Pari enregistré'); go('track');
+  };
+  $('#clearSlip').onclick = () => { state.slip = []; store.set('slip', []); closeSheet(); render(); };
+}
+
+/* ============================== Feuilles ============================== */
+let sheetOpen = false;
+function openSheet(title, html) { $('#sheetT').textContent = title; $('#sheetC').innerHTML = html; $('#sheetC').scrollTop = 0; $('#sheetC').onclick = null; $('#sheet').classList.add('show'); $('#ov').classList.add('show'); sheetOpen = true; updSlip(); }
+function closeSheet() { $('#sheet').classList.remove('show'); $('#ov').classList.remove('show'); sheetOpen = false; updSlip(); }
+window.appBack = () => { if (sheetOpen) { closeSheet(); return true; } if (state.tab !== 'home') { go('home'); return true; } return false; };
+
+/* ============================== Rendu ============================== */
+function fmtTime(iso) {
+  const d = new Date(iso); const now = new Date(); const tm = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  const dd = Math.round((new Date(d.toDateString()) - new Date(now.toDateString())) / 864e5);
+  return (dd === 0 ? "Aujourd'hui" : dd === 1 ? 'Demain' : d.toLocaleDateString('fr-FR', { weekday: 'short', day: '2-digit', month: '2-digit' })) + ' ' + tm;
+}
+function srcBanner() {
+  if (state.source === 'live') return `<div class="banner ok">${ic('check')}<div>Cotes réelles · ${state.events.length} matchs${state.remaining ? ' · ' + esc(state.remaining) + ' requêtes restantes' : ''}</div></div>`;
+  return `<div class="banner">${ic('info')}<div><b>Mode démonstration.</b> Les cotes affichées sont simulées. Ajoutez votre clé The Odds API dans les réglages pour analyser les cotes réelles des bookmakers.</div></div>`;
+}
+function oddsBtn(ev, mk, o, M) {
+  const s = { id: `${ev.id}|${mk}|${o.k}` }; const lbl = mk === 'h2h' ? SHORT[o.k] : (o.k === 'over' ? '+' : '-') + M.line;
+  return `<button class="o${inSlip(s.id) ? ' sel' : ''}${o.ev > 0.01 ? ' val' : ''}" data-sel="${s.id}"><small>${lbl}</small><b class="num">${f2(o.best)}</b><em class="num">${pct(o.p, 0)}</em></button>`;
+}
+function eventCard(ev) {
+  const A = analyse(ev); const M = A.h2h;
+  const fav = M ? M.out.slice().sort((a, b) => b.p - a.p)[0] : null;
+  return `<div class="ev">
+    <div class="ev-top"><span class="lg">${esc(ev.league)} · ${fmtTime(ev.time)}</span>${fav ? `<span class="tag ${fav.p >= 0.6 ? 'g' : fav.p >= 0.45 ? 'a' : 'n'}">Fiabilité ${conf(fav, M.books)}</span>` : ''}</div>
+    <div class="ev-teams"><div>${esc(ev.home)}<br>${esc(ev.away)}</div><button class="more" data-ev="${esc(ev.id)}">Analyse ${ic('chev', 14)}</button></div>
+    ${M ? `<div class="odds" style="grid-template-columns:repeat(${M.out.length},1fr)">${M.out.map((o) => oddsBtn(ev, 'h2h', o, M)).join('')}</div>` : ''}
+    ${A.totals ? `<div class="odds" style="grid-template-columns:1fr 1fr;margin-top:6px">${A.totals.out.map((o) => oddsBtn(ev, 'totals', o, A.totals)).join('')}</div>` : ''}
+  </div>`;
+}
+function pickRow(s, extra) {
+  return `<div class="pick" data-sel-row="${esc(s.id)}"><div class="m"><b>${esc(s.name)}</b><span>${esc(s.ev.home)} - ${esc(s.ev.away)} · ${fmtTime(s.ev.time)}</span><div class="bar ${s.p > 0.7 ? 'g' : ''}"><i style="width:${(s.p * 100).toFixed(0)}%"></i></div></div><div class="od"><b class="num">${f2(s.odds)}</b>${extra || `<span class="tag n num">${pct(s.p, 0)}</span>`}</div><button class="o${inSlip(s.id) ? ' sel' : ''}" style="width:40px;padding:8px 0" data-sel="${esc(s.id)}"><b style="font-size:16px">+</b></button></div>`;
+}
+function vHome() {
+  const evs = visibleEvents(); const sel = selections(evs);
+  const safest = sel.filter((s) => !s.est).sort((a, b) => b.p - a.p || b.conf - a.conf).slice(0, 6);
+  const value = sel.filter((s) => !s.est && s.evv > 0.005 && s.p > 0.25).sort((a, b) => b.evv - a.evv).slice(0, 6);
+  const c = buildCombos(Object.assign({}, state.combo, { legs: 2, minOdds: 1.5, maxOdds: 3, mode: 'safe', minP: 0.6 })).combos.slice(0, 3);
+  const opn = state.bets.filter((b) => b.status === 'open').length;
+  return `${srcBanner()}
+    <div class="kpis"><div class="kpi"><span>Matchs</span><b class="num">${evs.length}</b></div><div class="kpi"><span>Value bets</span><b class="num" style="color:var(--grn)">${sel.filter((s) => !s.est && s.evv > 0.005).length}</b></div><div class="kpi"><span>Paris ouverts</span><b class="num">${opn}</b></div></div>
+    <h2>Combinés les plus sûrs <small>2 sélections, cote 1.50 - 3.00</small></h2>
+    ${c.length ? `<div class="hs">${c.map((x, i) => comboCard(x, i, true)).join('')}</div>` : '<div class="card muted">Pas assez de sélections fiables pour l’instant.</div>'}
+    <h2>Sélections les plus probables</h2>
+    <div class="card">${safest.map((s) => pickRow(s)).join('') || '<span class="muted">Aucune sélection.</span>'}</div>
+    <h2>Value bets <small>cote supérieure à la probabilité réelle</small></h2>
+    <div class="card">${value.map((s) => pickRow(s, `<span class="tag g num">${sgn(s.evv)}</span>`)).join('') || '<span class="muted">Aucune value détectée sur les marchés chargés.</span>'}</div>
+    <p class="legal">Parimetric calcule des probabilités à partir des cotes du marché et de modèles statistiques. Aucun pari n’est certain. Jouez de manière responsable : 09 74 75 13 13 (Joueurs Info Service).</p>`;
+}
+function vMatches() {
+  const evs = visibleEvents().slice().sort((a, b) => new Date(a.time) - new Date(b.time));
+  if (state.loading) return '<div class="spin"></div>';
+  return `${srcBanner()}<div class="row sp-b" style="margin-bottom:12px"><span class="muted">${evs.length} matchs · point vert = value</span><button class="btn sec sm" id="reload">Actualiser</button></div>
+    ${evs.map(eventCard).join('') || `<div class="empty">${ic('ball')}<div>Aucun match pour cette compétition.</div></div>`}`;
+}
+function comboCard(c, i, compact) {
+  return `<div class="combo card" style="padding:0">
+    <div class="combo-h"><span class="rk">COMBINÉ ${i + 1} · ${c.legs.length} SÉL.</span><span class="tag ${c.P >= 0.45 ? 'g' : c.P >= 0.25 ? 'a' : 'r'}">${pct(c.P)} de réussite</span></div>
+    <div class="combo-b">${c.legs.map((l) => `<div class="pick"><div class="m"><b>${esc(l.name)}</b><span>${esc(l.ev.home)} - ${esc(l.ev.away)}${l.est ? ' · cote estimée' : ''}</span></div><div class="od"><b class="num">${f2(l.odds)}</b><span class="mu2 num" style="font-size:11px">${pct(l.p, 0)}</span></div></div>`).join('')}</div>
+    <div class="combo-f"><div><span>Cote</span><b class="num">${f2(c.O)}</b></div><div><span>Proba</span><b class="num">${pct(c.P, 0)}</b></div><div><span>Espérance</span><b class="num" style="color:${c.EV >= 0 ? 'var(--grn)' : '#FF5A6A'}">${sgn(c.EV, 0)}</b></div><div><button class="btn sm" style="width:100%;padding:7px 4px" data-combo="${i}">Jouer</button></div></div>
+  </div>`;
+}
+let lastCombos = [];
+function vCombos() {
+  const c = state.combo; const R = buildCombos(c); lastCombos = R.combos;
+  const segM = (v, l) => `<button data-mode="${v}" class="${c.mode === v ? 'on' : ''}">${l}</button>`;
+  const segL = [2, 3, 4, 5, 6].map((n) => `<button data-legs="${n}" class="${c.legs === n ? 'on' : ''}">${n}</button>`).join('');
+  return `${srcBanner()}
+  <div class="card">
+    <div class="fld"><label>Stratégie</label><div class="seg">${segM('safe', 'Sécurité')}${segM('bal', 'Équilibré')}${segM('value', 'Valeur')}</div></div>
+    <div class="fld"><label>Nombre de sélections</label><div class="seg">${segL}</div></div>
+    <div class="grid2"><div class="fld"><label>Cote totale min.</label><input type="number" step="0.1" id="cMin" value="${c.minOdds}"></div><div class="fld"><label>Cote totale max.</label><input type="number" step="0.5" id="cMax" value="${c.maxOdds}"></div></div>
+    <div class="fld"><label>Probabilité minimale par sélection : <b id="pLbl">${pct(c.minP, 0)}</b></label><input type="range" min="0.3" max="0.9" step="0.01" id="cP" value="${c.minP}"></div>
+    <div class="line-r"><span>Résultat 1N2</span><label class="sw"><input type="checkbox" id="cH" ${c.h2h ? 'checked' : ''}><i></i></label></div>
+    <div class="line-r"><span>Double chance <span class="mu2">(cote estimée)</span></span><label class="sw"><input type="checkbox" id="cD" ${c.dc ? 'checked' : ''}><i></i></label></div>
+    <div class="line-r"><span>Plus / moins de buts</span><label class="sw"><input type="checkbox" id="cT" ${c.totals ? 'checked' : ''}><i></i></label></div>
+  </div>
+  <h2>${R.combos.length} combinés trouvés <small>${R.pool} sélections analysées</small></h2>
+  ${R.combos.map((x, i) => comboCard(x, i)).join('') || `<div class="empty">${ic('combo')}<div>Aucun combiné ne respecte ces critères.<br>Baissez la probabilité minimale ou élargissez la cote cible.</div></div>`}
+  <p class="legal">Probabilité du combiné = produit des probabilités de chaque sélection (matchs indépendants). Plus il y a de sélections, plus le risque augmente.</p>`;
+}
+function vTools() {
+  const T = [['arb', 'Calculateur de surebet', 'Arbitrage 2 ou 3 issues, mises optimales'], ['kelly', 'Critère de Kelly', 'Mise optimale selon votre estimation'], ['conv', 'Convertisseur de cotes', 'Décimale, probabilité, fractionnelle, US'], ['sys', 'Paris système', 'Coût et gains des systèmes 2/3, 3/4...'], ['margin', 'Marge du bookmaker', 'Calcul de la marge et des cotes justes']];
+  return T.map(([k, t, d]) => `<button class="tool" data-tool="${k}"><div class="ic">${ic(k === 'margin' ? 'combo' : k)}</div><div style="flex:1"><b>${t}</b><span>${d}</span></div>${ic('chev', 16)}</button>`).join('');
+}
+function vTrack() {
+  const B = state.bets; const done = B.filter((b) => b.status !== 'open');
+  const staked = done.reduce((a, b) => a + b.stake, 0); const ret = done.reduce((a, b) => a + (b.status === 'won' ? b.stake * b.odds : b.status === 'void' ? b.stake : 0), 0);
+  const won = done.filter((b) => b.status === 'won').length;
+  let run = 0; const pts = [0, ...done.slice().reverse().map((b) => (run += (b.status === 'won' ? b.stake * b.odds : b.status === 'void' ? b.stake : 0) - b.stake))];
+  const mn = Math.min(...pts), mx = Math.max(...pts, mn + 1);
+  const path = pts.map((v, i) => `${(i / Math.max(1, pts.length - 1)) * 300},${66 - ((v - mn) / (mx - mn)) * 60}`).join(' ');
+  const expP = done.reduce((a, b) => a + b.p, 0);
+  return `<div class="kpis"><div class="kpi"><span>Bénéfice</span><b class="num" style="color:${ret - staked >= 0 ? 'var(--grn)' : '#FF5A6A'}">${eur(ret - staked)}</b></div><div class="kpi"><span>ROI</span><b class="num">${staked ? sgn((ret - staked) / staked) : '-'}</b></div><div class="kpi"><span>Réussite</span><b class="num">${done.length ? pct(won / done.length, 0) : '-'}</b></div></div>
+  ${done.length > 1 ? `<div class="card" style="margin-top:10px"><div class="row sp-b"><span class="muted" style="font-size:12px">Évolution du bénéfice</span><span class="mu2" style="font-size:11px">Attendu : ${expP.toFixed(1)} gagnés / réel : ${won}</span></div><svg class="spark" viewBox="0 0 300 70" preserveAspectRatio="none"><polyline points="${path}" fill="none" stroke="${run >= 0 ? '#1FC27A' : '#E3182D'}" stroke-width="2.2" vector-effect="non-scaling-stroke"/></svg></div>` : ''}
+  <h2>Historique <small>${B.length} paris</small></h2>
+  <div class="card">${B.map((b, i) => `<div class="hist"><div class="row sp-b"><b>${b.legs.length > 1 ? 'Combiné ' + b.legs.length + ' sél.' : esc(b.legs[0].name)}</b><span class="tag ${b.status === 'won' ? 'g' : b.status === 'lost' ? 'r' : b.status === 'void' ? 'n' : 'a'}">${{ open: 'En cours', won: 'Gagné', lost: 'Perdu', void: 'Remboursé' }[b.status]}</span></div>
+    <div class="muted" style="font-size:12px;margin:3px 0 8px">${b.legs.map((l) => esc(l.name) + ' (' + f2(l.odds) + ')').join(' · ')}</div>
+    <div class="row sp-b"><span class="num" style="font-size:12.5px">Mise ${eur(b.stake)} · cote ${f2(b.odds)} · proba ${pct(b.p, 0)}</span>
+    ${b.status === 'open' ? `<div class="row" style="gap:6px"><button class="btn sm" data-st="won" data-i="${i}" style="background:var(--grn)">Gagné</button><button class="btn sm sec" data-st="lost" data-i="${i}">Perdu</button></div>` : `<button class="ibtn" data-del="${i}" aria-label="Supprimer">${ic('trash', 15)}</button>`}</div></div>`).join('') || `<div class="empty">${ic('track')}<div>Aucun pari enregistré. Ajoutez des sélections au coupon puis enregistrez-les.</div></div>`}</div>`;
+}
+
+const DEF_MODEL = () => ({ hs: 1.5, hc: 1.1, as: 1.2, ac: 1.4, fh: ['V', 'N', 'V', 'D', 'V'], fa: ['N', 'D', 'V', 'N', 'D'], weight: 0.3 });
+function vMatchSheet(ev, draft) {
+  const A = analyse(ev); const m = draft || state.models[ev.id] || DEF_MODEL();
+  const tbl = (M, mk) => !M ? '' : `
+    <div class="card" style="margin-bottom:10px"><div class="row sp-b" style="margin-bottom:8px"><b>${mk === 'h2h' ? 'Résultat du match' : 'Total ' + M.line}</b><span class="tag n">${M.books} bookmakers · marge ${pct(M.margin)}</span></div>
+    <table><tr><th>Issue</th><th>Proba</th><th>Cote juste</th><th>Meilleure</th><th>Value</th></tr>
+    ${M.out.map((o) => `<tr class="${o.ev > 0.005 ? 'best' : ''}"><td>${esc(label(ev, mk, o.k, M.line))}</td><td class="num">${pct(o.p)}</td><td class="num">${f2(o.fairOdds)}</td><td class="num">${f2(o.best)}</td><td class="num">${sgn(o.ev)}</td></tr>`).join('')}</table>
+    <div class="odds" style="grid-template-columns:repeat(${M.out.length},1fr);margin-top:10px">${M.out.map((o) => oddsBtn(ev, mk, o, M)).join('')}</div>
+    <details style="margin-top:10px"><summary class="muted" style="font-size:12px">Détail par bookmaker</summary><table style="margin-top:6px"><tr><th>Bookmaker</th>${M.out.map((o) => `<th>${mk === 'h2h' ? SHORT[o.k] : o.k === 'over' ? '+' : '-'}</th>`).join('')}<th>Marge</th></tr>
+    ${M.rows.map((r) => `<tr><td>${esc(r.title)}${r.sharp ? ' <span class="tag a">sharp</span>' : ''}</td>${r.odds.map((o, i) => `<td class="num" style="${o === M.out[i].best ? 'color:var(--grn);font-weight:700' : ''}">${f2(o)}</td>`).join('')}<td class="num">${pct(r.margin)}</td></tr>`).join('')}</table></details></div>`;
+  const P = ev.draw ? modelProbs(m) : null;
+  const formEd = (key) => `<div class="form" data-form="${key}">${m[key].map((r, i) => `<button class="${r}" data-fi="${i}">${r}</button>`).join('')}</div>`;
+  return `<div class="muted" style="margin-bottom:12px">${esc(ev.league)} · ${fmtTime(ev.time)}${ev.demo ? ' · <span class="tag a">démo</span>' : ''}</div>
+  ${tbl(A.h2h, 'h2h')}${tbl(A.totals, 'totals')}
+  ${ev.draw ? `<h2>Analyse d’avant-match <small>modèle de Poisson</small></h2>
+  <div class="card">
+    <div class="grid2"><div><div class="muted" style="font-size:12px;font-weight:700;margin-bottom:8px">${esc(ev.home)} (dom.)</div><div class="fld"><label>Buts marqués / match</label><input type="number" step="0.1" data-m="hs" value="${m.hs}"></div><div class="fld"><label>Buts encaissés / match</label><input type="number" step="0.1" data-m="hc" value="${m.hc}"></div><label class="muted" style="font-size:11.5px">5 derniers matchs</label>${formEd('fh')}</div>
+    <div><div class="muted" style="font-size:12px;font-weight:700;margin-bottom:8px">${esc(ev.away)} (ext.)</div><div class="fld"><label>Buts marqués / match</label><input type="number" step="0.1" data-m="as" value="${m.as}"></div><div class="fld"><label>Buts encaissés / match</label><input type="number" step="0.1" data-m="ac" value="${m.ac}"></div><label class="muted" style="font-size:11.5px">5 derniers matchs</label>${formEd('fa')}</div></div>
+    <div class="fld" style="margin-top:14px"><label>Poids du modèle dans l’analyse : <b>${Math.round(m.weight * 100)} %</b> (le reste = consensus du marché)</label><input type="range" min="0" max="0.7" step="0.05" data-m="weight" value="${m.weight}"></div>
+    <div class="line-r"><span>Intégrer ce modèle aux combinés</span><label class="sw"><input type="checkbox" id="mOn" ${state.models[ev.id] ? 'checked' : ''}><i></i></label></div>
+    ${P ? `<div class="res"><div class="row sp-b"><span class="muted">Buts attendus</span><b class="num">${P.lh.toFixed(2)} - ${P.la.toFixed(2)}</b></div>
+      <div class="row sp-b"><span class="muted">1 / N / 2</span><b class="num">${pct(P.home, 0)} / ${pct(P.draw, 0)} / ${pct(P.away, 0)}</b></div>
+      <div class="row sp-b"><span class="muted">+1.5 / +2.5 / +3.5 buts</span><b class="num">${pct(P.over[1.5], 0)} / ${pct(P.over[2.5], 0)} / ${pct(P.over[3.5], 0)}</b></div>
+      <div class="row sp-b"><span class="muted">Les deux équipes marquent</span><b class="num">${pct(P.btts, 0)}</b></div></div>
+      <div class="muted" style="font-size:12px;margin:12px 0 6px">Scores exacts les plus probables</div>
+      <div class="score-g">${P.grid.slice(0, 5).map((g) => `<div><b class="num">${g.i}-${g.j}</b><span class="num">${pct(g.p, 0)}</span></div>`).join('')}</div>` : ''}
+  </div>` : ''}
+  <p class="legal">Probabilités = cotes de tous les bookmakers sans leur marge (méthode puissance), pondérées vers les bookmakers les plus précis. Value = probabilité x meilleure cote - 1.</p>`;
+}
+function openMatch(id) {
+  const ev = state.events.find((e) => e.id === id); if (!ev) return;
+  openSheet(ev.home + ' - ' + ev.away, vMatchSheet(ev));
+  const C = $('#sheetC');
+  const draft = JSON.parse(JSON.stringify(state.models[ev.id] || DEF_MODEL()));
+  const refresh = () => {
+    const top = C.scrollTop;
+    if (state.models[ev.id]) { state.models[ev.id] = draft; store.set('models', state.models); }
+    C.innerHTML = vMatchSheet(ev, draft); C.scrollTop = top;
+  };
+  C.onclick = (e) => {
+    const s = e.target.closest('[data-sel]'); if (s) { const x = selections([ev]).find((q) => q.id === s.dataset.sel); if (x) toggleSel(x); C.querySelectorAll('[data-sel]').forEach((b) => b.classList.toggle('sel', inSlip(b.dataset.sel))); return; }
+    const fb = e.target.closest('[data-fi]'); if (fb) { const k = fb.parentNode.dataset.form; const i = +fb.dataset.fi; draft[k][i] = { V: 'N', N: 'D', D: 'V' }[draft[k][i]] || 'V'; refresh(); }
+  };
+  C.onchange = (e) => {
+    const k = e.target.dataset.m; if (k) { draft[k] = +e.target.value; refresh(); return; }
+    if (e.target.id === 'mOn') { if (e.target.checked) state.models[ev.id] = draft; else delete state.models[ev.id]; store.set('models', state.models); refresh(); render(); }
+  };
+}
+
+/* ============================== Outils ============================== */
+function openTool(k) {
+  const H = {
+    arb: ['Calculateur de surebet', `<div class="grid3"><div class="fld"><label>Cote 1</label><input type="number" step="0.01" class="ai" value="2.10"></div><div class="fld"><label>Cote N (option.)</label><input type="number" step="0.01" class="ai" value=""></div><div class="fld"><label>Cote 2</label><input type="number" step="0.01" class="ai" value="2.05"></div></div><div class="fld"><label>Mise totale (€)</label><input type="number" id="aT" value="100"></div><div class="res" id="out"></div>`],
+    kelly: ['Critère de Kelly', `<div class="grid2"><div class="fld"><label>Cote</label><input type="number" step="0.01" id="kO" value="2.20"></div><div class="fld"><label>Votre probabilité (%)</label><input type="number" id="kP" value="50"></div></div><div class="grid2"><div class="fld"><label>Bankroll (€)</label><input type="number" id="kB" value="${S.bankroll}"></div><div class="fld"><label>Fraction de Kelly</label><select id="kF"><option value="1">Kelly complet</option><option value="0.5">1/2 Kelly</option><option value="0.25" selected>1/4 Kelly</option><option value="0.1">1/10 Kelly</option></select></div></div><div class="res" id="out"></div>`],
+    conv: ['Convertisseur de cotes', `<div class="fld"><label>Cote décimale</label><input type="number" step="0.01" id="cvD" value="1.80"></div><div class="res" id="out"></div>`],
+    sys: ['Paris système', `<div class="fld"><label>Cotes des sélections (séparées par des espaces)</label><input id="sO" value="1.6 1.8 2.1 1.5"></div><div class="grid2"><div class="fld"><label>Système : combinés de</label><input type="number" id="sK" value="2" min="1"></div><div class="fld"><label>Mise par combinaison (€)</label><input type="number" id="sM" value="1"></div></div><div class="fld"><label>Probabilités estimées en % (option.)</label><input id="sP" placeholder="ex. 60 55 45 65"></div><div class="res" id="out"></div>`],
+    margin: ['Marge du bookmaker', `<div class="grid3"><div class="fld"><label>Cote 1</label><input type="number" step="0.01" class="mi" value="1.85"></div><div class="fld"><label>Cote N</label><input type="number" step="0.01" class="mi" value="3.60"></div><div class="fld"><label>Cote 2</label><input type="number" step="0.01" class="mi" value="4.20"></div></div><div class="res" id="out"></div>`],
+  }[k];
+  openSheet(H[0], H[1]);
+  const C = $('#sheetC'); const out = () => $('#out'); const r = (a, b, st) => `<div class="row sp-b"><span class="muted">${a}</span><b class="num" ${st ? `style="${st}"` : ''}>${b}</b></div>`;
+  const calc = {
+    arb() { const o = [...C.querySelectorAll('.ai')].map((i) => +i.value).filter((x) => x > 1); const T = +$('#aT').value || 0; const inv = o.reduce((a, x) => a + 1 / x, 0); const ok = inv < 1;
+      out().innerHTML = r('Somme des probabilités', pct(inv)) + r(ok ? 'Profit garanti' : 'Pas d’arbitrage', ok ? sgn(1 / inv - 1, 2) : sgn(1 / inv - 1, 2), `color:${ok ? 'var(--grn)' : '#FF5A6A'}`) + o.map((x, i) => r('Mise sur cote ' + f2(x), eur(T / x / inv))).join('') + r('Retour quelle que soit l’issue', eur(T / inv)); },
+    kelly() { const o = +$('#kO').value, p = +$('#kP').value / 100, B = +$('#kB').value, F = +$('#kF').value; const k = kelly(p, o);
+      out().innerHTML = r('Espérance', sgn(p * o - 1), `color:${p * o > 1 ? 'var(--grn)' : '#FF5A6A'}`) + r('Kelly complet', pct(k)) + r('Mise conseillée', eur(B * k * F)) + r('Probabilité implicite de la cote', pct(1 / o)); },
+    conv() { const d = +$('#cvD').value; if (!(d > 1)) return; const fr = (() => { const x = d - 1; let best = [1, 1], e = 9; for (let q = 1; q <= 20; q++) { const p = Math.round(x * q); const er = Math.abs(p / q - x); if (er < e - 1e-9) { e = er; best = [p, q]; } } return best.join('/'); })();
+      out().innerHTML = r('Probabilité implicite', pct(1 / d, 2)) + r('Fractionnelle', fr) + r('Américaine', d >= 2 ? '+' + Math.round((d - 1) * 100) : String(Math.round(-100 / (d - 1)))) + r('Gain net pour 10 €', eur(10 * (d - 1))); },
+    sys() { const o = $('#sO').value.split(/[\s,;]+/).map(Number).filter((x) => x > 1); const K = Math.min(+$('#sK').value || 1, o.length); const M = +$('#sM').value || 0; const ps = $('#sP').value.split(/[\s,;]+/).map((x) => +x / 100).filter((x) => x > 0 && x < 1);
+      const combs = []; (function c(s, a) { if (a.length === K) return combs.push(a.slice()); for (let i = s; i < o.length; i++) { a.push(i); c(i + 1, a); a.pop(); } })(0, []);
+      const P = ps.length === o.length ? ps : o.map((x) => 1 / x / 1.05);
+      let ev = 0; for (let mask = 0; mask < 1 << o.length; mask++) { let pr = 1; for (let i = 0; i < o.length; i++) pr *= mask & (1 << i) ? P[i] : 1 - P[i]; let ret = 0; for (const cb of combs) if (cb.every((i) => mask & (1 << i))) ret += M * cb.reduce((a, i) => a * o[i], 1); ev += pr * ret; }
+      const cost = combs.length * M; const maxW = combs.reduce((a, cb) => a + M * cb.reduce((x, i) => x * o[i], 1), 0);
+      const minWin = Math.min(...combs.map((cb) => M * cb.reduce((x, i) => x * o[i], 1)));
+      out().innerHTML = r('Combinaisons', combs.length) + r('Coût total', eur(cost)) + r('Gain si tout passe', eur(maxW)) + r(`Gain minimum avec ${K} bonnes`, eur(minWin)) + r('Retour moyen attendu', eur(ev)) + r('Espérance', sgn(cost ? ev / cost - 1 : 0), `color:${ev >= cost ? 'var(--grn)' : '#FF5A6A'}`); },
+    margin() { const o = [...C.querySelectorAll('.mi')].map((i) => +i.value).filter((x) => x > 1); const f = devig(o); const mg = o.reduce((a, x) => a + 1 / x, 0) - 1;
+      out().innerHTML = r('Marge', pct(mg, 2)) + o.map((x, i) => r(`Cote ${f2(x)} : proba juste`, pct(f[i]) + ' · cote juste ' + f2(1 / f[i]))).join(''); },
+  }[k];
+  C.oninput = calc; calc();
+}
+
+function openSettings() {
+  openSheet('Réglages', `
+    <h2 style="margin-top:0">Source des cotes</h2>
+    <div class="card"><div class="fld"><label>Clé API The Odds API (gratuite sur the-odds-api.com, 500 requêtes / mois)</label><input id="sKey" value="${esc(S.apiKey)}" placeholder="Collez votre clé" autocomplete="off"></div>
+    <div class="fld" style="margin-bottom:0"><label>Région des bookmakers</label><select id="sReg">${[['eu', 'Europe'], ['uk', 'Royaume-Uni'], ['fr', 'France'], ['us', 'États-Unis'], ['au', 'Australie']].map(([v, l]) => `<option value="${v}" ${S.region === v ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
+    <h2>Gestion de la bankroll</h2>
+    <div class="card"><div class="grid2"><div class="fld"><label>Bankroll (€)</label><input type="number" id="sBank" value="${S.bankroll}"></div><div class="fld"><label>Mise max. (% bankroll)</label><input type="number" id="sMax" value="${S.maxStakePct * 100}"></div></div>
+    <div class="fld" style="margin-bottom:0"><label>Fraction de Kelly</label><select id="sKelly">${[[1, 'Kelly complet'], [0.5, '1/2 Kelly'], [0.25, '1/4 Kelly (conseillé)'], [0.1, '1/10 Kelly']].map(([v, l]) => `<option value="${v}" ${S.kellyFrac == v ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
+    <h2>Moteur d’analyse</h2>
+    <div class="card"><div class="grid2"><div class="fld"><label>Bookmakers minimum</label><input type="number" id="sMin" value="${S.minBooks}"></div><div class="fld"><label>Poids books « sharp »</label><input type="number" id="sSharp" value="${S.sharpWeight}"></div></div></div>
+    <button class="btn" id="sSave" style="margin-top:16px">Enregistrer et actualiser</button>
+    <p class="legal">Parimetric v1.0 · Les clés et données restent sur votre téléphone.<br>Les jeux d’argent sont interdits aux mineurs. Jouer comporte des risques : endettement, dépendance. Appelez le 09 74 75 13 13 (appel non surtaxé).</p>`);
+  $('#sSave').onclick = () => {
+    S = Object.assign(S, { apiKey: $('#sKey').value.trim(), region: $('#sReg').value, bankroll: +$('#sBank').value || 100, maxStakePct: (+$('#sMax').value || 5) / 100, kellyFrac: +$('#sKelly').value, minBooks: +$('#sMin').value || 1, sharpWeight: +$('#sSharp').value || 1 });
+    store.set('settings', S); closeSheet(); loadOdds();
+  };
+}
+
+/* ============================== Navigation ============================== */
+const TABS = [['home', 'Accueil', 'home'], ['matches', 'Matchs', 'list'], ['combos', 'Combinés', 'combo'], ['tools', 'Outils', 'tools'], ['track', 'Suivi', 'track']];
+function go(t) { state.tab = t; $('#main').scrollTop = 0; render(); }
+function render() {
+  $('#nav').innerHTML = TABS.map(([k, l, i]) => `<button class="${state.tab === k ? 'on' : ''}" data-tab="${k}">${ic(i)}<span>${l}</span></button>`).join('');
+  const sp = [{ key: 'all', label: 'Tous' }, ...SPORTS.filter((s) => state.source === 'live' || TEAMS[s.key])];
+  $('#sports').innerHTML = sp.map((s) => `<button class="sp ${state.sport === s.key ? 'on' : ''}" data-sport="${s.key}">${s.label}</button>`).join('');
+  $('#sports').style.display = state.tab === 'tools' || state.tab === 'track' ? 'none' : '';
+  $('#bankVal').textContent = eur(S.bankroll + state.bets.filter((b) => b.status !== 'open').reduce((a, b) => a + (b.status === 'won' ? b.stake * (b.odds - 1) : b.status === 'lost' ? -b.stake : 0), 0)).replace(',00', '');
+  $('#main').innerHTML = { home: vHome, matches: vMatches, combos: vCombos, tools: vTools, track: vTrack }[state.tab]();
+  updSlip();
+}
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-tab]'); if (t) return go(t.dataset.tab);
+  const sp = e.target.closest('[data-sport]'); if (sp) { state.sport = sp.dataset.sport; store.set('sport', state.sport); if (state.source === 'live' && sp.dataset.sport !== 'all' && !state.events.some((x) => x.sport === state.sport)) return loadOdds(); if (state.source === 'demo') state.events = demoEvents(); return render(); }
+  if (e.target.closest('#sheet')) return;
+  const s = e.target.closest('[data-sel]'); if (s) { const x = selections(state.events).find((q) => q.id === s.dataset.sel); if (x) toggleSel(x); return; }
+  const ev = e.target.closest('[data-ev]'); if (ev) return openMatch(ev.dataset.ev);
+  const cb = e.target.closest('[data-combo]'); if (cb) { const c = lastCombos[+cb.dataset.combo] || buildCombos(Object.assign({}, state.combo, { legs: 2, minOdds: 1.5, maxOdds: 3, mode: 'safe', minP: 0.6 })).combos[+cb.dataset.combo]; if (c) { state.slip = []; c.legs.forEach(toggleSel); openSlip(); } return; }
+  const md = e.target.closest('[data-mode]'); if (md) { state.combo.mode = md.dataset.mode; saveCombo(); return render(); }
+  const lg = e.target.closest('[data-legs]'); if (lg) { state.combo.legs = +lg.dataset.legs; if (state.combo.legs >= 4 && state.combo.maxOdds < 8) state.combo.maxOdds = 12; saveCombo(); return render(); }
+  const tl = e.target.closest('[data-tool]'); if (tl) return openTool(tl.dataset.tool);
+  const st = e.target.closest('[data-st]'); if (st) { state.bets[+st.dataset.i].status = st.dataset.st; store.set('bets', state.bets); return render(); }
+  const dl = e.target.closest('[data-del]'); if (dl) { state.bets.splice(+dl.dataset.del, 1); store.set('bets', state.bets); return render(); }
+  if (e.target.closest('#reload')) return loadOdds();
+});
+document.addEventListener('change', (e) => {
+  if (e.target.closest('#sheet')) return;
+  const id = e.target.id; const c = state.combo;
+  if (id === 'cMin') c.minOdds = +e.target.value || 1; else if (id === 'cMax') c.maxOdds = +e.target.value || 100; else if (id === 'cP') c.minP = +e.target.value; else if (id === 'cH') c.h2h = e.target.checked; else if (id === 'cD') c.dc = e.target.checked; else if (id === 'cT') c.totals = e.target.checked; else return;
+  saveCombo(); render();
+});
+document.addEventListener('input', (e) => { if (e.target.id === 'cP') $('#pLbl').textContent = pct(+e.target.value, 0); });
+function saveCombo() { store.set('comboCfg', state.combo); }
+$('#slip').onclick = openSlip; $('#ov').onclick = closeSheet; $('#sheetX').onclick = closeSheet; $('#btnSettings').onclick = openSettings; $('#bankChip').onclick = () => go('track');
+
+/* ============================== Démarrage ============================== */
+(function boot() {
+  const cache = store.get('cache', null);
+  if (S.apiKey && cache && Date.now() - cache.t < 20 * 6e4) { state.events = cache.events; state.source = 'live'; render(); }
+  else loadOdds();
+})();
+</script>
+</body>
+</html>
