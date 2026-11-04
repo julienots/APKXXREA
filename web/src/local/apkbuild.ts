@@ -288,7 +288,7 @@ export async function buildApkOnDevice(inp: DeviceBuildInput): Promise<DeviceBui
   log('▶ Écrans');
   const assets = new Map<string, Uint8Array>();
   const imgByEntry = new Map<string, string>();
-  const screens: Record<string, { title: string; root: UiNode }> = {};
+  const screens: Record<string, { title: string; root: UiNode; next?: string; delayMs?: number }> = {};
   let n = 0;
   const convertPaint = async (p?: Paint): Promise<(Paint & { asset?: string; density?: number }) | undefined> => {
     if (!p) return p;
@@ -339,7 +339,7 @@ export async function buildApkOnDevice(inp: DeviceBuildInput): Promise<DeviceBui
       log(`  ⚠ écran ${s.key} introuvable, ignoré`);
       continue;
     }
-    screens[s.key] = { title: s.title ?? stored?.title ?? '', root: await convert(tree) };
+    screens[s.key] = { title: s.title ?? stored?.title ?? '', root: await convert(tree), ...(s.next && s.next !== s.key ? { next: s.next, delayMs: Math.round((s.delay ?? 2) * 1000) } : {}) };
     if (s.launcher || !launcher) launcher = s.launcher ? s.key : launcher || s.key;
     log(`  ✔ ${s.key}${stored ? ` (${stored.origin})` : ''}`);
   }
@@ -347,6 +347,12 @@ export async function buildApkOnDevice(inp: DeviceBuildInput): Promise<DeviceBui
   if (!Object.keys(screens).length) {
     screens.home = { title: o.appName, root: { uid: 'root', tag: 'LinearLayout', kind: 'linear', raw: {}, children: [{ uid: 't', tag: 'TextView', kind: 'text', raw: {}, children: [], props: { text: o.appName, textSize: 24 } }], props: { width: 'match', height: 'match', gravity: 'center', orientation: 'vertical' } } };
     launcher = 'home';
+  }
+  for (const [k, v] of Object.entries(screens)) {
+    if (v.next && !screens[v.next] && !['LoginActivity', 'WebActivity', 'SettingsActivity', 'ItemsActivity'].includes(v.next)) {
+      log(`  ⚠ écran suivant « ${v.next} » de « ${k} » non inclus : enchaînement ignoré`);
+      delete v.next;
+    } else if (v.next) log(`  ✔ ${k} → ${v.next} après ${(v.delayMs! / 1000).toFixed(1)} s`);
   }
   check('Au moins un écran', Object.keys(screens).length > 0, `${Object.keys(screens).length} écran(s), ${imgByEntry.size} image(s)`);
   const app = { appName: o.appName, colors: o.colors, launcher, screens, features, loginFirst: !!features.login };

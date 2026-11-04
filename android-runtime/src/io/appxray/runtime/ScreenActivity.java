@@ -3,6 +3,8 @@ package io.appxray.runtime;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.TextView;
 
 import org.json.JSONObject;
@@ -33,6 +35,19 @@ public class ScreenActivity extends Activity {
             return;
         }
         Config.applyTheme(this, screen.optString("title", ""));
-        setContentView(new Ui(this).build(screen.optJSONObject("root")));
+        final Ui ui = new Ui(this);
+        setContentView(ui.build(screen.optJSONObject("root")));
+        final String next = screen.optString("next", "");
+        if (next.length() > 0 && !next.equals(key)) {
+            // Loading/splash screen: move on automatically (replaces the original app's logic).
+            new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (isFinishing()) return;
+                    ui.action("navigate", next);
+                    finish();
+                }
+            }, Math.max(0, screen.optInt("delayMs", 2000)));
+        }
     }
 }

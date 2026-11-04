@@ -1,1 +1,1 @@
-{ "applicationId": "io.appxray.client", "versionCode": 2, "versionName": "0.2.0", "minSdk": 24, "liteTargetSdk": 29 }
+{ "applicationId": "io.appxray.client", "versionCode": 3, "versionName": "0.2.1", "minSdk": 24, "liteTargetSdk": 29 }

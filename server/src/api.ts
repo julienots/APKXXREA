@@ -13,6 +13,7 @@ import { redact, secretKind } from './engines/detect.js';
 import { startDecompile, getDecompileState, jadxSourceFor, smaliFor } from './engines/decompile.js';
 import { listLayouts, layoutTree, screenGraph, drawableToSvg, refsOf } from './engines/ui.js';
 import { defaultOptions, generateProject, ProjectRecord, ProjectOptions, getStoredScreen, saveStoredScreen, listStoredScreens, uiDir, StoredScreen } from './engines/rebuild.js';
+import { projectDefaults } from './engines/project-defaults.js';
 import { startBuild, getBuild, availableModes, BuildRecord } from './engines/build.js';
 import { toolStatus } from './engines/tools.js';
 import { getJob, listJobs, cancelJob, cancelFor } from './jobs.js';
@@ -373,29 +374,7 @@ export function api() {
     wrap(async (req, res) => {
       const aid = str(req.query.analysisId, 64);
       const L = aid ? await load(aid) : undefined;
-      const o = defaultOptions(L);
-      let candidates: { key: string; origin: string; usedBy: string[] }[] = [];
-      let launcherLayout: string | undefined;
-      if (L) {
-        const stored = await listStoredScreens(L.analysis.id);
-        const g = screenGraph(L);
-        launcherLayout = g.screens.find((s) => s.launcher)?.layouts[0];
-        const layouts = listLayouts(L);
-        candidates = [
-          ...stored.map((s) => ({ key: s.key, origin: s.origin, usedBy: layouts.find((l) => l.name === s.key)?.usedBy ?? [] })),
-          ...layouts.filter((l) => !stored.some((s) => s.key === l.name)).map((l) => ({ key: l.name, origin: 'original', usedBy: l.usedBy })),
-        ];
-        // default selection: layouts used by app screens
-        const used = new Set(g.screens.flatMap((s) => s.layouts));
-        o.screens = candidates.filter((c) => used.has(c.key) || c.origin !== 'original').slice(0, 20).map((c) => ({ key: c.key, launcher: c.key === launcherLayout }));
-        o.features = [];
-        const colors = colorsOf(L.resolver).filter((c) => !c.config);
-        const pick = (re: RegExp) => colors.find((c) => re.test(c.name))?.value.toUpperCase();
-        o.colors.primary = pick(/^(color_?)?primary$/i) ?? o.colors.primary;
-        o.colors.primaryDark = pick(/^(color_?)?primary_?(dark|variant)$/i) ?? o.colors.primaryDark;
-        o.colors.accent = pick(/^(color_?)?(accent|secondary)$/i) ?? o.colors.accent;
-      }
-      res.json({ options: o, candidates, features: L?.analysis.features ?? [], launcherLayout });
+      res.json(await projectDefaults(L, L ? await listStoredScreens(L.analysis.id) : []));
     }),
   );
   r.get('/projects', wrap(async (_q, res) => res.json((await listRecords<ProjectRecord>(paths.projects(), 'project.json')).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)))));
@@ -611,7 +590,7 @@ function normalizeOptions(o: Partial<ProjectOptions> | undefined): ProjectOption
     versionCode: Number(o.versionCode) || 1,
     minSdk: Number(o.minSdk) || 21,
     colors: { ...d.colors, ...(o.colors ?? {}) },
-    screens: Array.isArray(o.screens) ? o.screens.slice(0, 100).map((s) => ({ key: str(s.key, 100), title: str(s.title, 100) || undefined, launcher: !!s.launcher })).filter((s) => s.key) : [],
+    screens: Array.isArray(o.screens) ? o.screens.slice(0, 100).map((s) => ({ key: str(s.key, 100), title: str(s.title, 100) || undefined, launcher: !!s.launcher, next: str(s.next, 100) || undefined, delay: Math.min(60, Math.max(0, Number(s.delay) || 0)) || undefined })).filter((s) => s.key) : [],
     features: Array.isArray(o.features) ? o.features.filter((f) => ['login', 'webview', 'settings', 'list', 'network'].includes(f?.id)).map((f) => ({ id: f.id, url: str(f.url, 500) || undefined })) : [],
     strings: o.strings && typeof o.strings === 'object' ? Object.fromEntries(Object.entries(o.strings).slice(0, 5000).map(([k, v]) => [k.slice(0, 100), String(v).slice(0, 4000)])) : {},
     copyOriginalIcon: o.copyOriginalIcon !== false,

@@ -12,6 +12,7 @@ import { isBinaryXml, parseBinaryXml, toXmlText, frameworkAttrName, formatValue,
 import { accessString, classRefs } from '../../../server/src/engines/dex';
 import { redact, secretKind } from '../../../server/src/engines/detect';
 import { listLayouts, layoutTree, screenGraph, drawableToSvg, refsOf } from '../../../server/src/engines/ui';
+import { projectDefaults } from '../../../server/src/engines/project-defaults';
 import { buildProjectFiles, defaultOptions, resName, type ProjectOptions, type ProjectRecord, type StoredScreen } from '../../../server/src/engines/rebuild-core';
 
 type Q = URLSearchParams;
@@ -429,24 +430,7 @@ const routes: [string, RegExp, Handler][] = [
     async (c) => {
       const aid = c.q.get('analysisId');
       const L = aid ? await load(aid) : undefined;
-      const o = defaultOptions(L);
-      let candidates: { key: string; origin: string; usedBy: string[] }[] = [];
-      let launcherLayout: string | undefined;
-      if (L && aid) {
-        const st = await storedList(aid);
-        const g = screenGraph(L);
-        launcherLayout = g.screens.find((s) => s.launcher)?.layouts[0];
-        const layouts = listLayouts(L);
-        candidates = [...st.map((s) => ({ key: s.key, origin: s.origin, usedBy: layouts.find((l) => l.name === s.key)?.usedBy ?? [] })), ...layouts.filter((l) => !st.some((s) => s.key === l.name)).map((l) => ({ key: l.name, origin: 'original', usedBy: l.usedBy }))];
-        const used = new Set(g.screens.flatMap((s) => s.layouts));
-        o.screens = candidates.filter((x) => used.has(x.key) || x.origin !== 'original').slice(0, 20).map((x) => ({ key: x.key, launcher: x.key === launcherLayout }));
-        const colors = colorsOf(L.resolver).filter((x) => !x.config);
-        const pick = (re: RegExp) => colors.find((x) => re.test(x.name))?.value.toUpperCase();
-        o.colors.primary = pick(/^(color_?)?primary$/i) ?? o.colors.primary;
-        o.colors.primaryDark = pick(/^(color_?)?primary_?(dark|variant)$/i) ?? o.colors.primaryDark;
-        o.colors.accent = pick(/^(color_?)?(accent|secondary)$/i) ?? o.colors.accent;
-      }
-      return { options: o, candidates, features: L?.analysis.features ?? [], launcherLayout };
+      return projectDefaults(L, aid ? await storedList(aid) : []);
     },
   ],
   ['GET', /^\/projects$/, async () => sortDesc(await db.all<ProjectRecord>('projects'), (p) => p.updatedAt)],

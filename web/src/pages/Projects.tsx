@@ -5,7 +5,7 @@ import { ago, rememberProject, useAsync, toInputColor, fromInputColor, cssColor 
 import { Badge, Card, Empty, ErrorBox, Loading, PageHeader, Spinner, Notice } from '../components/ui';
 import { IBox, IHammer, ITrash, IPlus } from '../components/icons';
 
-interface Defaults { options: ProjectOptions; candidates: { key: string; origin: string; usedBy: string[] }[]; features: Feature[]; launcherLayout?: string }
+interface Defaults { options: ProjectOptions; candidates: { key: string; origin: string; usedBy: string[]; library?: boolean; loading?: boolean; hint?: string }[]; features: Feature[]; launcherLayout?: string; warnings?: string[] }
 
 const FEATURES = [
   { id: 'login', label: 'Connexion', desc: 'Comptes locaux sécurisés (à brancher sur votre API)' },
@@ -108,7 +108,7 @@ export function Wizard({ analysisId, existing, onDone }: { analysisId?: string; 
   };
   const suggested = new Set((d.data?.features ?? []).map((f) => f.scaffold).filter(Boolean));
   return (
-    <div className="grid gap-5">
+    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-5">
       <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="md:col-span-2">
           <label className="label">Nom de l'application</label>
@@ -148,15 +148,22 @@ export function Wizard({ analysisId, existing, onDone }: { analysisId?: string; 
         </div>
       </section>
 
+      {analysisId && !!d.data?.warnings?.length && (
+        <Notice tone="warn">
+          <ul className="list-disc space-y-1 pl-4">{d.data.warnings.map((w) => <li key={w}>{w}</li>)}</ul>
+        </Notice>
+      )}
       {analysisId && (
         <section>
           <div className="label">Écrans à reconstruire ({o.screens.length})</div>
-          <div className="scroll-thin grid max-h-64 gap-1 overflow-auto rounded-xl border border-ink-700 p-2 sm:grid-cols-2">
+          <div className="scroll-thin grid max-h-64 grid-cols-[minmax(0,1fr)] gap-1 overflow-auto rounded-xl border border-ink-700 p-2 sm:grid-cols-2">
             {d.data!.candidates.map((c) => (
-              <label key={c.key} className="flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm hover:bg-ink-800">
+              <label key={c.key} className="flex min-h-9 min-w-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-lg px-2 py-1 text-sm hover:bg-ink-800">
                 <input type="checkbox" className="accent-volt-500" checked={has(c.key)} onChange={() => toggleScreen(c.key)} />
                 <span className="mono min-w-0 flex-1 truncate text-xs">{c.key}</span>
                 {c.origin !== 'original' && <Badge tone={c.origin === 'assisted' ? 'good' : 'cyan'}>{c.origin === 'assisted' ? 'assisté' : 'modifié'}</Badge>}
+                {c.loading && <Badge tone="warn" title={c.hint}>chargement</Badge>}
+                {c.library && <Badge tone="muted" title={c.hint}>bibliothèque</Badge>}
                 {c.usedBy.length > 0 && <Badge tone="blue">{c.usedBy[0].split('.').pop()}</Badge>}
                 {has(c.key) && (
                   <button type="button" className={`chip ${o.screens.find((s) => s.key === c.key)?.launcher ? 'border-good/40 bg-good/10 text-good' : 'border-ink-600 text-ink-400'}`} onClick={(e) => { e.preventDefault(); set({ screens: o.screens.map((s) => ({ ...s, launcher: s.key === c.key })) }); }}>
@@ -166,7 +173,28 @@ export function Wizard({ analysisId, existing, onDone }: { analysisId?: string; 
               </label>
             ))}
           </div>
-          <p className="mt-1 text-[11px] text-ink-400">Pré-sélection : layouts reliés à une activité/fragment de l'application et écrans modifiés. Éditez-les d'abord dans le UI Reconstructor.</p>
+          <p className="mt-1 text-[11px] text-ink-400">Pré-sélection : layouts reliés à une activité/fragment de l'application et écrans modifiés (hors bibliothèques). Éditez-les d'abord dans le UI Reconstructor.</p>
+          {o.screens.length > 0 && (
+            <div className="mt-3 grid gap-2">
+              <div className="label">Enchaînement automatique</div>
+              {o.screens.map((sc) => {
+                const c = d.data!.candidates.find((x) => x.key === sc.key);
+                if (!sc.launcher && !c?.loading && !sc.next) return null;
+                return (
+                  <div key={sc.key} className={`flex flex-col gap-2 rounded-xl border p-2 text-sm sm:flex-row sm:items-center ${c?.loading && !sc.next ? 'border-warn/50 bg-warn/5' : 'border-ink-700'}`}>
+                    <span className="mono min-w-0 flex-1 truncate text-xs">{sc.key}{sc.launcher ? ' (lancement)' : ''}{c?.loading && !sc.next && <span className="ml-2 font-sans text-warn">resterait bloqué</span>}</span>
+                    <span className="text-xs text-ink-400">puis ouvrir</span>
+                    <select className="input !min-h-8 min-w-0 sm:!w-48" value={sc.next ?? ''} onChange={(e) => set({ screens: o.screens.map((x) => (x.key === sc.key ? { ...x, next: e.target.value || undefined, delay: x.delay ?? 2 } : x)) })}>
+                      <option value="">— rester sur cet écran —</option>
+                      {o.screens.filter((x) => x.key !== sc.key).map((x) => <option key={x.key} value={x.key}>{x.key}</option>)}
+                      {o.features.filter((f) => f.id !== 'network').map((f) => <option key={f.id} value={{ login: 'LoginActivity', webview: 'WebActivity', settings: 'SettingsActivity', list: 'ItemsActivity' }[f.id]}>{f.id} (fonctionnalité)</option>)}
+                    </select>
+                    {sc.next && <span className="flex items-center gap-1 text-xs text-ink-400">après <input className="input !min-h-8 !w-16" type="number" min={0} max={60} step={0.5} value={sc.delay ?? 2} onChange={(e) => set({ screens: o.screens.map((x) => (x.key === sc.key ? { ...x, delay: +e.target.value } : x)) })} /> s</span>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </section>
       )}
 

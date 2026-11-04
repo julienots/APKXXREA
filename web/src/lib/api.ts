@@ -244,7 +244,7 @@ export interface ProjectOptions {
   versionCode: number;
   minSdk: number;
   colors: { primary: string; primaryDark: string; accent: string; background: string };
-  screens: { key: string; title?: string; launcher?: boolean }[];
+  screens: { key: string; title?: string; launcher?: boolean; next?: string; delay?: number }[];
   features: { id: string; url?: string }[];
   strings: Record<string, string>;
   copyOriginalIcon: boolean;
