@@ -129,7 +129,7 @@ export function useApiUrl(path: string | null, params: Record<string, string> = 
   return u;
 }
 
-interface AndroidBridge { saveFile?(name: string, mime: string, base64: string): string; openFile?(uri: string, mime: string): void; changeServer?(): void; useLocal?(): void }
+interface AndroidBridge { listApps?(includeSystem: boolean): string; copyApk?(pkg: string): void; saveFile?(name: string, mime: string, base64: string): string; openFile?(uri: string, mime: string): void; changeServer?(): void; useLocal?(): void }
 export const android = () => (window as unknown as { AppxrayAndroid?: AndroidBridge }).AppxrayAndroid;
 
 /** Download an API resource to the device (Android: Downloads folder; browser: regular download). */

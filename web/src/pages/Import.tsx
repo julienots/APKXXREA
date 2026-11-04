@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Analysis, upload, isLocal } from '../lib/api';
+import { Analysis, upload, isLocal, android } from '../lib/api';
+import { InstalledApps, installedBase, type InstalledApp } from '../components/InstalledApps';
 import { bytes, rememberAnalysis } from '../lib/util';
-import { Card, ErrorBox, Notice, PageHeader, Spinner } from '../components/ui';
+import { Card, ErrorBox, Notice, PageHeader, Spinner, Tabs } from '../components/ui';
 import { IShield, IUpload } from '../components/icons';
 
 const STEPS = ['Transfert', 'Contrôle ZIP (bombe, traversée)', 'Empreintes SHA-256/SHA-1/MD5', 'Manifest + ressources', 'DEX + signatures', 'Détection'];
@@ -16,6 +17,34 @@ export default function ImportPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [consent, setConsent] = useState(false);
+  const canList = !!android()?.listApps;
+  const [source, setSource] = useState<'file' | 'installed'>(canList ? 'installed' : 'file');
+  const [status, setStatus] = useState<string>();
+
+  const analyseInstalled = async (app: InstalledApp) => {
+    if (!consent) {
+      setError("Cochez d'abord la confirmation d'autorisation ci-dessous.");
+      return;
+    }
+    setBusy(true);
+    setError(undefined);
+    try {
+      setStatus(`Lecture de l'APK de ${app.label}…`);
+      const r = await fetch(`${installedBase()}/__installed/${app.package}/base.apk`);
+      if (!r.ok) throw new Error(`APK illisible (HTTP ${r.status})`);
+      const f = new File([await r.blob()], `${app.label.replace(/[^\w.\- ]/g, '_')}_${app.versionName}.apk`, { type: 'application/vnd.android.package-archive' });
+      setStatus(`Analyse de ${app.label}…`);
+      const a = await upload<Analysis>('/analyses', f, setProgress);
+      rememberAnalysis(a.id);
+      if (a.status === 'error') setError(`Analyse en échec : ${a.error}`);
+      else nav(`/analyzer/${a.id}`);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+      setStatus(undefined);
+    }
+  };
 
   const pick = (f?: File | null) => {
     setError(undefined);
@@ -49,6 +78,17 @@ export default function ImportPage() {
       <PageHeader kicker="Module 1" title="Importer un APK" subtitle={isLocal() ? 'Le fichier est analysé statiquement sur ce téléphone, sans jamais être exécuté.' : 'Le fichier est analysé statiquement côté serveur, sans jamais être exécuté.'} />
       <div className="grid gap-4 lg:grid-cols-[1fr_340px]">
         <Card glow>
+          <label className="mb-4 flex items-start gap-3 text-sm text-ink-200">
+            <input type="checkbox" className="mt-1 h-4 w-4 accent-volt-500" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
+            <span>Je confirme être propriétaire de cette application ou disposer d'une autorisation pour l'analyser et la reproduire.</span>
+          </label>
+          {canList && <Tabs value={source} onChange={setSource} tabs={[{ id: 'installed', label: 'Applications installées' }, { id: 'file', label: 'Fichier APK' }]} />}
+          {source === 'installed' && canList ? (
+            <>
+              <InstalledApps onAnalyse={analyseInstalled} busy={busy} />
+              {status && <div className="mt-3 flex items-center gap-2 text-sm text-cyan-x"><Spinner /> {status}</div>}
+            </>
+          ) : (
           <div
             onDragOver={(e) => {
               e.preventDefault();
@@ -81,10 +121,8 @@ export default function ImportPage() {
               Choisir un fichier
             </button>
           </div>
-          <label className="mt-4 flex items-start gap-3 text-sm text-ink-200">
-            <input type="checkbox" className="mt-1 h-4 w-4 accent-volt-500" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-            <span>Je confirme être propriétaire de cette application ou disposer d'une autorisation pour l'analyser et la reproduire.</span>
-          </label>
+          )}
+          {(source === 'file' || !canList) && (
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button className="btn-primary" disabled={!file || !consent || busy} onClick={start}>
               {busy ? <Spinner /> : <IUpload />} {busy ? (progress < 1 ? `Envoi ${Math.round(progress * 100)} %` : 'Analyse en cours…') : "Lancer l'analyse"}
@@ -95,6 +133,7 @@ export default function ImportPage() {
               </div>
             )}
           </div>
+          )}
           <div className="mt-4">
             <ErrorBox error={error} />
           </div>

@@ -50,6 +50,8 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONObject;
+
 /**
  * APPXRAY for Android.
  * Default "phone" mode: the whole APPXRAY app (UI + analysis engine + on-device APK builder) is bundled in
@@ -78,11 +80,13 @@ public class MainActivity extends Activity {
     private WebView web;
     private ValueCallback<Uri[]> fileCallback;
     private final Handler main = new Handler(Looper.getMainLooper());
+    private InstalledApps apps;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         prefs = getSharedPreferences("appxray", MODE_PRIVATE);
+        apps = new InstalledApps(this);
         if ("server".equals(prefs.getString("mode", "local")) && !prefs.getString("server", "").isEmpty()) showWeb(false);
         else showWeb(true);
     }
@@ -219,7 +223,9 @@ public class MainActivity extends Activity {
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest req) {
                 Uri u = req.getUrl();
                 if (!"appxray.local".equals(u.getHost())) return null;
-                return serveAsset(u.getPath());
+                String path = u.getPath() == null ? "/" : u.getPath();
+                if (path.startsWith("/__installed/")) return apps.serve(path);
+                return serveAsset(path);
             }
 
             @Override
@@ -431,8 +437,46 @@ public class MainActivity extends Activity {
         }
 
         @JavascriptInterface
+        public String listApps(boolean includeSystem) {
+            try {
+                return apps.list(includeSystem);
+            } catch (Exception e) {
+                return "[]";
+            }
+        }
+
+        /** Copy runs in the background; the page is notified through window.__appxrayCopyDone(pkg, ok, message). */
+        @JavascriptInterface
+        public void copyApk(final String pkg) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String msg;
+                    boolean ok;
+                    try {
+                        msg = apps.copyToDownloads(pkg);
+                        ok = true;
+                    } catch (Exception e) {
+                        msg = e.getMessage() == null ? e.toString() : e.getMessage();
+                        ok = false;
+                    }
+                    final String js = "window.__appxrayCopyDone && window.__appxrayCopyDone(" + JSONObject.quote(pkg) + "," + ok + "," + JSONObject.quote(msg) + ")";
+                    final String m = msg;
+                    final boolean fok = ok;
+                    main.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            toast(fok ? m + " copié dans Téléchargements/APPXRAY" : "Copie impossible : " + m);
+                            if (web != null) web.evaluateJavascript(js, null);
+                        }
+                    });
+                }
+            }).start();
+        }
+
+        @JavascriptInterface
         public String version() {
-            return "0.2.0";
+            return "0.3.0";
         }
     }
 
