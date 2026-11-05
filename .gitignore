@@ -12,3 +12,11 @@ android/app/build/
 android/.gradle/
 android/local.properties
 android/app/src/main/assets/www/
+
+# Avatar Studio
+avatar-studio/keys/
+avatar-studio/web/node_modules/
+avatar-studio/web/dist/
+avatar-studio/android/*.p12
+avatar-studio/android/*.p12.pass
+avatar-studio/android/app/src/main/assets/www/
