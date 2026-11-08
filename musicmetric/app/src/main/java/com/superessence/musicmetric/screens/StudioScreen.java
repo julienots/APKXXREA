@@ -27,7 +27,7 @@ public final class StudioScreen extends Screen {
         // ---------- empty state
         empty = T.col(a);
         LinearLayout drop = T.col(a); drop.setGravity(Gravity.CENTER);
-        drop.setBackground(T.ripple(dashed(), 0x33FFC928)); drop.setPadding(T.dp(20), T.dp(34), T.dp(20), T.dp(34));
+        drop.setBackground(T.ripple(dashed(), 0x22FFFFFF)); drop.setPadding(T.dp(20), T.dp(34), T.dp(20), T.dp(34));
         LinearLayout circle = T.row(a); circle.setGravity(Gravity.CENTER); circle.setBackground(T.gradientCircle());
         circle.addView(new Icon(a, Icon.IMPORT, 0xFF111111), T.lp(T.dp(30), T.dp(30)));
         drop.addView(circle, T.lp(T.dp(72), T.dp(72)));
@@ -69,7 +69,7 @@ public final class StudioScreen extends Screen {
         tr.addView(round(Icon.BACK, false, new Runnable() { public void run() { a.player.seek(0); wave.setPlayhead(0); } }), T.lp(T.dp(52), T.dp(52)));
         LinearLayout play = round(Icon.PLAY, true, new Runnable() { public void run() { a.player.toggle(); } });
         playIcon = (Icon) play.getChildAt(0);
-        tr.addView(play, T.margins(T.lp(T.dp(72), T.dp(72)), 22, 0, 22, 0));
+        tr.addView(play, T.margins(T.lp(T.dp(64), T.dp(64)), 18, 0, 18, 0));
         LinearLayout loop = round(Icon.LOOP, false, new Runnable() { public void run() { toggleLoop(); } });
         loopIcon = (Icon) loop.getChildAt(0);
         tr.addView(loop, T.lp(T.dp(52), T.dp(52)));
@@ -131,13 +131,13 @@ public final class StudioScreen extends Screen {
     }
 
     android.graphics.drawable.GradientDrawable dashed() {
-        android.graphics.drawable.GradientDrawable g = T.round(T.SURFACE, 24);
+        android.graphics.drawable.GradientDrawable g = T.round(T.SURFACE, 8);
         g.setStroke(T.dp(2), 0x66FFC928, T.dpf(10), T.dpf(7)); return g;
     }
 
     LinearLayout round(int icon, boolean primary, final Runnable r) {
         LinearLayout b = T.row(a); b.setGravity(Gravity.CENTER);
-        b.setBackground(T.ripple(primary ? T.gradientCircle() : T.round(T.SURFACE3, 40, T.STROKE, 1), primary ? 0x55000000 : 0x33FFC928));
+        b.setBackground(T.ripple(primary ? T.round(T.Y, T.RADIUS) : T.round(T.SURFACE2, T.RADIUS, 0xFF3A3A40, 1), primary ? 0x33000000 : 0x22FFFFFF));
         Icon ic = new Icon(a, icon, primary ? 0xFF111111 : T.WHITE);
         b.addView(ic, T.lp(T.dp(primary ? 30 : 22), T.dp(primary ? 30 : 22)));
         b.setOnClickListener(click(r));

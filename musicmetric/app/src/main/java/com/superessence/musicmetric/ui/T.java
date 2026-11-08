@@ -28,6 +28,9 @@ public final class T {
     public static final int BG = 0xFF000000, SURFACE = 0xFF0F0F11, SURFACE2 = 0xFF18181B, SURFACE3 = 0xFF222226, STROKE = 0xFF2A2A2F;
     public static final int Y = 0xFFFFC928, Y_DARK = 0xFFF59E0B, Y_SOFT = 0x33FFC928, WHITE = 0xFFFFFFFF, TEXT2 = 0xFFA1A1AA, TEXT3 = 0xFF6B6B73, RED = 0xFFFF5A5F, GREEN = 0xFF3DDC97;
 
+    /** Corner radius of every control: square look, just softened. */
+    public static final float RADIUS = 4;
+
     public static Typeface BLACK, BOLD, MEDIUM, REGULAR;
     static float density = 3;
 
@@ -81,11 +84,11 @@ public final class T {
     /** Rounded surface card with title + optional subtitle. Returns the card; add children to it. */
     public static LinearLayout card(Context c, String title, String sub) {
         LinearLayout card = col(c);
-        card.setBackground(round(SURFACE, 22, STROKE, 1));
+        card.setBackground(round(SURFACE, 8, STROKE, 1));
         card.setPadding(dp(18), dp(18), dp(18), dp(18));
         if (title != null) {
             LinearLayout head = row(c);
-            View bar = new View(c); bar.setBackground(round(Y, 3));
+            View bar = new View(c); bar.setBackground(round(Y, 0));
             head.addView(bar, margins(lp(dp(4), dp(18)), 0, 0, 10, 0));
             head.addView(text(c, title, 18, WHITE, BLACK));
             card.addView(head);
@@ -110,7 +113,7 @@ public final class T {
     public static LinearLayout button(Context c, String s, int icon, boolean primary, View.OnClickListener l) {
         LinearLayout b = row(c); b.setGravity(Gravity.CENTER);
         int bg = primary ? Y : SURFACE3, fg = primary ? 0xFF111111 : WHITE;
-        b.setBackground(ripple(primary ? gradientY() : round(bg, 16, STROKE, 1), primary ? 0x55000000 : 0x33FFC928));
+        b.setBackground(ripple(primary ? round(Y, RADIUS) : round(SURFACE2, RADIUS, 0xFF3A3A40, 1), primary ? 0x33000000 : 0x22FFFFFF));
         b.setPadding(dp(16), 0, dp(16), 0); b.setMinimumHeight(dp(50));
         if (icon >= 0) { Icon ic = new Icon(c, icon, fg); b.addView(ic, margins(lp(dp(20), dp(20)), 0, 0, 8, 0)); }
         TextView t = text(c, s, 15, fg, BOLD); t.setGravity(Gravity.CENTER); b.addView(t);
@@ -119,19 +122,17 @@ public final class T {
     }
 
     public static GradientDrawable gradientY() {
-        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xFFFFDD66, Y, Y_DARK});
-        g.setCornerRadius(dpf(16)); return g;
+        return round(Y, RADIUS);
     }
 
     public static GradientDrawable gradientCircle() {
-        GradientDrawable g = new GradientDrawable(GradientDrawable.Orientation.TL_BR, new int[]{0xFFFFDD66, Y, Y_DARK});
-        g.setShape(GradientDrawable.OVAL); return g;
+        return round(Y, RADIUS);
     }
 
     /** Compact tool tile: icon on top, label below. */
     public static LinearLayout tile(Context c, String s, int icon, View.OnClickListener l) {
         LinearLayout b = col(c); b.setGravity(Gravity.CENTER);
-        b.setBackground(ripple(round(SURFACE2, 16, STROKE, 1), 0x33FFC928));
+        b.setBackground(ripple(round(SURFACE2, RADIUS, STROKE, 1), 0x22FFFFFF));
         b.setPadding(dp(6), dp(12), dp(6), dp(12));
         Icon ic = new Icon(c, icon, Y); b.addView(ic, lp(dp(24), dp(24)));
         TextView t = text(c, s, 11.5f, WHITE, MEDIUM); t.setGravity(Gravity.CENTER); t.setMaxLines(2); t.setBreakStrategy(android.text.Layout.BREAK_STRATEGY_SIMPLE); t.setHyphenationFrequency(android.text.Layout.HYPHENATION_FREQUENCY_NONE);
@@ -192,7 +193,7 @@ public final class T {
         void refresh() {
             for (int i = 0; i < chips.size(); i++) {
                 boolean on = isOn(i); TextView t = chips.get(i);
-                t.setBackground(on ? round(Y, 20) : round(SURFACE2, 20, STROKE, 1));
+                t.setBackground(on ? round(Y, RADIUS) : round(SURFACE2, RADIUS, STROKE, 1));
                 t.setTextColor(on ? 0xFF111111 : WHITE); t.setTypeface(on ? BOLD : MEDIUM);
             }
         }
@@ -200,7 +201,7 @@ public final class T {
 
     /** Small key/value stat pill (e.g. "BPM 128"). */
     public static LinearLayout stat(Context c, String k, String v) {
-        LinearLayout s = col(c); s.setBackground(round(SURFACE2, 14, STROKE, 1)); s.setPadding(dp(12), dp(10), dp(12), dp(10));
+        LinearLayout s = col(c); s.setBackground(round(SURFACE2, RADIUS, STROKE, 1)); s.setPadding(dp(12), dp(10), dp(12), dp(10));
         s.addView(text(c, k.toUpperCase(), 10, TEXT3, BOLD));
         TextView vt = text(c, v, 16, WHITE, BLACK); vt.setTag("v");
         s.addView(vt, margins(lp(WRAP, WRAP), 0, 4, 0, 0));

@@ -36,7 +36,7 @@ public final class RemixScreen extends Screen {
         LinearLayout er = T.row(a);
         er.addView(T.button(a, "Rallonger", Icon.EXTEND, true, click(new Runnable() { public void run() { variant = 0; extend(); } })), T.lpw(1.3f));
         er.addView(new View(a), T.lp(T.dp(10), 1));
-        er.addView(T.button(a, "Autre boucle", Icon.LOOP, false, click(new Runnable() { public void run() { variant++; extend(); } })), T.lpw(1));
+        er.addView(T.button(a, "Variante", Icon.LOOP, false, click(new Runnable() { public void run() { variant++; extend(); } })), T.lpw(1));
         ext.addView(er);
         T.addCard(col, ext);
 
@@ -46,7 +46,7 @@ public final class RemixScreen extends Screen {
         LinearLayout rr = T.row(a);
         rr.addView(T.button(a, "Recomposer", Icon.SHUFFLE, true, click(new Runnable() { public void run() { recompose(); } })), T.lpw(1.3f));
         rr.addView(new View(a), T.lp(T.dp(10), 1));
-        rr.addView(T.button(a, "Autre version", Icon.LOOP, false, click(new Runnable() { public void run() { seed++; recompose(); } })), T.lpw(1));
+        rr.addView(T.button(a, "Variante", Icon.LOOP, false, click(new Runnable() { public void run() { seed++; recompose(); } })), T.lpw(1));
         rec.addView(rr);
         T.addCard(col, rec);
 

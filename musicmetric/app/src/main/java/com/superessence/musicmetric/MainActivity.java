@@ -126,7 +126,7 @@ public final class MainActivity extends Activity {
         t.addView(sub, T.margins(T.lp(T.WRAP, T.WRAP), 0, 3, 0, 0));
         h.addView(t, T.lpw(1));
         Icon info = new Icon(this, Icon.INFO, T.TEXT2); info.setPadding(T.dp(8), T.dp(8), T.dp(8), T.dp(8));
-        info.setBackground(T.ripple(T.round(T.SURFACE, 14), 0x33FFC928));
+        info.setBackground(T.ripple(T.round(T.SURFACE2, T.RADIUS, T.STROKE, 1), 0x22FFFFFF));
         info.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { about(); } });
         h.addView(info, T.lp(T.dp(40), T.dp(40)));
         return h;
@@ -154,7 +154,7 @@ public final class MainActivity extends Activity {
         r.addView(tt, T.lpw(1));
         miniPlay = new Icon(this, Icon.PLAY, 0xFF111111);
         miniPlay.setPadding(T.dp(11), T.dp(11), T.dp(11), T.dp(11));
-        miniPlay.setBackground(T.ripple(T.round(T.Y, 22), 0x55000000));
+        miniPlay.setBackground(T.ripple(T.round(T.Y, T.RADIUS), 0x33000000));
         miniPlay.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { player.toggle(); refreshMini(); } });
         r.addView(miniPlay, T.lp(T.dp(44), T.dp(44)));
         mini.addView(r);
@@ -166,13 +166,14 @@ public final class MainActivity extends Activity {
     static final int[] TAB_ICONS = {Icon.WAVE, Icon.SLIDERS, Icon.MIC, Icon.SHUFFLE, Icon.PIANO};
 
     View bottomNav() {
-        nav = T.row(this); nav.setBackgroundColor(T.BG); nav.setPadding(T.dp(6), T.dp(6), T.dp(6), T.dp(8));
+        nav = T.row(this); nav.setBackgroundColor(T.BG); nav.setPadding(T.dp(6), 0, T.dp(6), T.dp(8));
         View top = new View(this); top.setBackgroundColor(T.STROKE);
         LinearLayout wrap = T.col(this); wrap.addView(top, T.lp(T.MATCH, 1)); wrap.addView(nav, T.lp(T.MATCH, T.WRAP));
         navItems = new LinearLayout[TABS.length];
         for (int i = 0; i < TABS.length; i++) {
             final int idx = i;
-            LinearLayout it = T.col(this); it.setGravity(Gravity.CENTER); it.setPadding(0, T.dp(6), 0, T.dp(4));
+            LinearLayout it = T.col(this); it.setGravity(Gravity.CENTER); it.setPadding(0, 0, 0, T.dp(4));
+            View under = new View(this); under.setTag("u"); it.addView(under, T.margins(T.lp(T.dp(28), T.dp(2)), 0, 0, 0, 6));
             Icon ic = new Icon(this, TAB_ICONS[i], T.TEXT3); ic.setTag("i");
             LinearLayout pill = T.row(this); pill.setGravity(Gravity.CENTER); pill.setTag("p");
             pill.addView(ic, T.lp(T.dp(22), T.dp(22)));
@@ -204,8 +205,9 @@ public final class MainActivity extends Activity {
         screens[i].onShow();
         for (int k = 0; k < navItems.length; k++) {
             boolean on = k == i;
-            ((Icon) navItems[k].findViewWithTag("i")).setColor(on ? 0xFF111111 : T.TEXT3);
-            navItems[k].findViewWithTag("p").setBackground(on ? T.round(T.Y, 15) : null);
+            ((Icon) navItems[k].findViewWithTag("i")).setColor(on ? T.Y : T.TEXT3);
+            navItems[k].findViewWithTag("p").setBackground(null);
+            navItems[k].findViewWithTag("u").setBackgroundColor(on ? T.Y : 0);
             ((TextView) navItems[k].findViewWithTag("t")).setTextColor(on ? T.WHITE : T.TEXT3);
         }
     }
@@ -264,7 +266,7 @@ public final class MainActivity extends Activity {
                 + "Exports : Musique/MusicMetric (M4A 256 kbps ou WAV).", 13, T.WHITE, T.REGULAR);
         d.setLineSpacing(0, 1.2f); v.addView(d);
         AlertDialog dlg = new AlertDialog.Builder(this).setView(v).setPositiveButton("Fermer", null).create();
-        dlg.show(); dlg.getWindow().setBackgroundDrawable(T.round(T.SURFACE, 24, T.STROKE, 1));
+        dlg.show(); dlg.getWindow().setBackgroundDrawable(T.round(T.SURFACE, 8, T.STROKE, 1));
     }
 
     // ------------------------------------------------------------------ track state
@@ -375,7 +377,7 @@ public final class MainActivity extends Activity {
 
     View busyOverlay() {
         FrameLayout f = new FrameLayout(this); f.setBackgroundColor(0xE6000000); f.setClickable(true); f.setVisibility(View.GONE);
-        LinearLayout card = T.col(this); card.setBackground(T.round(T.SURFACE, 26, T.STROKE, 1)); card.setPadding(T.dp(26), T.dp(26), T.dp(26), T.dp(24));
+        LinearLayout card = T.col(this); card.setBackground(T.round(T.SURFACE, 8, T.STROKE, 1)); card.setPadding(T.dp(26), T.dp(26), T.dp(26), T.dp(24));
         card.setGravity(Gravity.CENTER_HORIZONTAL);
         Spinner sp = new Spinner(this); card.addView(sp, T.lp(T.dp(64), T.dp(64)));
         busyTitle = T.text(this, "", 19, T.WHITE, T.BLACK); busyTitle.setGravity(Gravity.CENTER);
@@ -404,7 +406,7 @@ public final class MainActivity extends Activity {
 
     public void error(String msg) {
         AlertDialog d = new AlertDialog.Builder(this).setTitle("Oups").setMessage(msg).setPositiveButton("OK", null).create();
-        d.show(); d.getWindow().setBackgroundDrawable(T.round(T.SURFACE, 24, T.STROKE, 1));
+        d.show(); d.getWindow().setBackgroundDrawable(T.round(T.SURFACE, 8, T.STROKE, 1));
     }
 
     // ------------------------------------------------------------------ import / export
@@ -472,7 +474,7 @@ public final class MainActivity extends Activity {
         TextView where = T.text(this, "Enregistré dans Musique/MusicMetric", 12, T.TEXT3, T.MEDIUM);
         v.addView(where, T.margins(T.lp(T.WRAP, T.WRAP), 0, 14, 0, 0));
         final AlertDialog d = new AlertDialog.Builder(this).setView(v).setNegativeButton("Annuler", null).setPositiveButton("Exporter", null).create();
-        d.show(); d.getWindow().setBackgroundDrawable(T.round(T.SURFACE, 24, T.STROKE, 1));
+        d.show(); d.getWindow().setBackgroundDrawable(T.round(T.SURFACE, 8, T.STROKE, 1));
         d.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() { public void onClick(View x) {
             d.dismiss(); doExport(et.getText().toString(), fmt.selected() == 0);
         } });
@@ -495,7 +497,7 @@ public final class MainActivity extends Activity {
                 .setPositiveButton("Partager", new android.content.DialogInterface.OnClickListener() {
                     public void onClick(android.content.DialogInterface di, int w) { share(s.uri); }
                 }).setNegativeButton("OK", null).create();
-        d.show(); d.getWindow().setBackgroundDrawable(T.round(T.SURFACE, 24, T.STROKE, 1));
+        d.show(); d.getWindow().setBackgroundDrawable(T.round(T.SURFACE, 8, T.STROKE, 1));
     }
 
     void share(Uri u) {

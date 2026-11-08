@@ -71,12 +71,12 @@ public final class FxScreen extends Screen {
     }
 
     View preset(final int i) {
-        LinearLayout t = T.col(a); t.setBackground(T.ripple(T.round(T.SURFACE2, 18, T.STROKE, 1), 0x33FFC928));
+        LinearLayout t = T.col(a); t.setBackground(T.ripple(T.round(T.SURFACE2, T.RADIUS, T.STROKE, 1), 0x22FFFFFF));
         t.setPadding(T.dp(14), T.dp(14), T.dp(14), T.dp(14));
         LinearLayout head = T.row(a);
-        LinearLayout ic = T.row(a); ic.setGravity(Gravity.CENTER); ic.setBackground(T.round(T.Y_SOFT, 12));
+        LinearLayout ic = T.row(a); ic.setGravity(Gravity.CENTER); 
         ic.addView(new Icon(a, PRESET_ICONS[i], T.Y), T.lp(T.dp(18), T.dp(18)));
-        head.addView(ic, T.lp(T.dp(34), T.dp(34)));
+        head.addView(ic, T.lp(T.dp(22), T.dp(22)));
         t.addView(head);
         TextView n = T.text(a, PRESETS[i][0], 15, T.WHITE, T.BLACK); n.setMaxLines(1);
         t.addView(n, T.margins(T.lp(T.WRAP, T.WRAP), 0, 12, 0, 4));

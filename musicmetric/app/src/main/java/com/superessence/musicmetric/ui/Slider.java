@@ -35,14 +35,14 @@ public final class Slider extends View {
     float pad() { return T.dpf(10); }
 
     @Override protected void onDraw(Canvas c) {
-        int w = getWidth(); float y = T.dpf(40), th = T.dpf(6), p = pad();
+        int w = getWidth(); float y = T.dpf(40), th = T.dpf(4), p = pad();
         c.drawText(label, 0, T.dpf(16), lab);
         c.drawText(fmt != null ? fmt.format(value) : String.valueOf(value), w, T.dpf(16), val);
-        rf.set(p, y - th / 2, w - p, y + th / 2); c.drawRoundRect(rf, th, th, track);
+        rf.set(p, y - th / 2, w - p, y + th / 2); c.drawRect(rf, track);
         float x = p + (w - 2 * p) * (value - min) / (max - min);
         float zero = min < 0 && max > 0 ? p + (w - 2 * p) * (0 - min) / (max - min) : p;
-        rf.set(Math.min(zero, x), y - th / 2, Math.max(zero, x), y + th / 2); c.drawRoundRect(rf, th, th, fill);
-        c.drawCircle(x, y, T.dpf(11), fill); c.drawCircle(x, y, T.dpf(5), thumb);
+        rf.set(Math.min(zero, x), y - th / 2, Math.max(zero, x), y + th / 2); c.drawRect(rf, fill);
+        rf.set(x - T.dpf(5), y - T.dpf(12), x + T.dpf(5), y + T.dpf(12)); c.drawRoundRect(rf, T.dpf(2), T.dpf(2), thumb);
     }
 
     @Override public boolean onTouchEvent(MotionEvent e) {

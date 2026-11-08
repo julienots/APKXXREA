@@ -87,7 +87,7 @@ public final class CreateScreen extends Screen {
     void refreshStyles() {
         for (int i = 0; i < styleCards.length; i++) {
             boolean on = i == style; LinearLayout c = styleCards[i];
-            c.setBackground(T.ripple(on ? T.gradientY() : T.round(T.SURFACE2, 16, T.STROKE, 1), 0x33FFC928));
+            c.setBackground(T.ripple(on ? T.round(T.Y, T.RADIUS) : T.round(T.SURFACE2, T.RADIUS, T.STROKE, 1), 0x22FFFFFF));
             ((TextView) c.findViewWithTag("n")).setTextColor(on ? 0xFF111111 : T.WHITE);
             ((TextView) c.findViewWithTag("d")).setTextColor(on ? 0xCC111111 : T.TEXT2);
         }
@@ -118,7 +118,7 @@ public final class CreateScreen extends Screen {
         LinearLayout p = T.col(a);
         LinearLayout tr = T.card(a, null, null);
         LinearLayout r = T.row(a);
-        LinearLayout play = T.row(a); play.setGravity(Gravity.CENTER); play.setBackground(T.ripple(T.gradientCircle(), 0x55000000));
+        LinearLayout play = T.row(a); play.setGravity(Gravity.CENTER); play.setBackground(T.ripple(T.round(T.Y, T.RADIUS), 0x33000000));
         prevIcon = new Icon(a, Icon.PLAY, 0xFF111111); play.addView(prevIcon, T.lp(T.dp(26), T.dp(26)));
         play.setOnClickListener(click(new Runnable() { public void run() { togglePreview(); } }));
         r.addView(play, T.lp(T.dp(60), T.dp(60)));
@@ -164,7 +164,7 @@ public final class CreateScreen extends Screen {
         for (int i = 0; i < 4; i++) {
             final int idx = i;
             TextView c = T.text(a, "", 16, T.WHITE, T.BLACK); c.setGravity(Gravity.CENTER); c.setPadding(0, T.dp(14), 0, T.dp(14));
-            c.setBackground(T.ripple(T.round(T.SURFACE2, 14, T.STROKE, 1), 0x33FFC928));
+            c.setBackground(T.ripple(T.round(T.SURFACE2, T.RADIUS, T.STROKE, 1), 0x22FFFFFF));
             c.setOnClickListener(click(new Runnable() { public void run() { pat.chords[idx] = (pat.chords[idx] + 1) % 7; refreshChordLabels(); changed(); } }));
             chordRow.addView(c, T.margins(T.lpw(1), i == 0 ? 0 : 4, 0, i == 3 ? 0 : 4, 0));
         }
