@@ -26,7 +26,7 @@ public final class T {
     private T() { }
 
     public static final int BG = 0xFF000000, SURFACE = 0xFF0F0F11, SURFACE2 = 0xFF18181B, SURFACE3 = 0xFF222226, STROKE = 0xFF2A2A2F;
-    public static final int Y = 0xFFFFC928, Y_DARK = 0xFFF59E0B, Y_SOFT = 0x33FFC928, WHITE = 0xFFFFFFFF, TEXT2 = 0xFFA1A1AA, TEXT3 = 0xFF6B6B73, RED = 0xFFFF5A5F, GREEN = 0xFF3DDC97;
+    public static final int Y = 0xFFF2F2F2, Y_DARK = 0xFFB8B8BE, Y_SOFT = 0x22FFFFFF, WHITE = 0xFFFFFFFF, TEXT2 = 0xFFA1A1AA, TEXT3 = 0xFF6B6B73, RED = 0xFFFF5A5F, GREEN = 0xFF3DDC97;
 
     /** Corner radius of every control: square look, just softened. */
     public static final float RADIUS = 4;
@@ -66,7 +66,7 @@ public final class T {
     public static CharSequence brand(String a, String b) {
         SpannableString s = new SpannableString(a + b);
         s.setSpan(new ForegroundColorSpan(WHITE), 0, a.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        s.setSpan(new ForegroundColorSpan(Y), a.length(), a.length() + b.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        s.setSpan(new ForegroundColorSpan(0xFF8E8E96), a.length(), a.length() + b.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return s;
     }
 

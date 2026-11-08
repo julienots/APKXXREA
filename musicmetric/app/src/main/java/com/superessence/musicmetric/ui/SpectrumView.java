@@ -25,7 +25,7 @@ public final class SpectrumView extends View {
     }
 
     @Override protected void onSizeChanged(int w, int h, int ow, int oh) {
-        bar.setShader(new LinearGradient(0, h, 0, 0, new int[]{T.Y_DARK, T.Y, 0xFFFFF1B8}, null, Shader.TileMode.CLAMP));
+        bar.setShader(new LinearGradient(0, h, 0, 0, new int[]{0xFF6B6B73, 0xFFC8C8CE, 0xFFFFFFFF}, null, Shader.TileMode.CLAMP));
     }
 
     @Override protected void onDraw(Canvas c) {

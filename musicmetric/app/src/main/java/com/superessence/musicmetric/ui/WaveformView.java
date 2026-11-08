@@ -23,7 +23,7 @@ public final class WaveformView extends View {
     public WaveformView(Context c) {
         super(c);
         dim.setColor(0xFF3A3A40); head.setColor(T.WHITE); head.setStrokeWidth(T.dpf(2));
-        sel.setColor(0x33FFC928); grid.setColor(0xFF1C1C20); grid.setStrokeWidth(1);
+        sel.setColor(0x26FFFFFF); grid.setColor(0xFF1C1C20); grid.setStrokeWidth(1);
         txt.setColor(T.TEXT3); txt.setTextSize(T.dpf(11)); txt.setTypeface(T.MEDIUM);
     }
 
@@ -52,7 +52,7 @@ public final class WaveformView extends View {
 
     @Override protected void onSizeChanged(int w, int h, int ow, int oh) {
         mins = null;
-        wave.setShader(new LinearGradient(0, 0, 0, h, new int[]{0xFFFFE27A, T.Y, T.Y_DARK, T.Y, 0xFFFFE27A}, null, Shader.TileMode.CLAMP));
+        wave.setShader(new LinearGradient(0, 0, 0, h, new int[]{0xFFFFFFFF, 0xFFE6E6EA, 0xFFB8B8BE, 0xFFE6E6EA, 0xFFFFFFFF}, null, Shader.TileMode.CLAMP));
     }
 
     @Override protected void onDraw(Canvas c) {

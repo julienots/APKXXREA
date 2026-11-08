@@ -132,7 +132,7 @@ public final class StudioScreen extends Screen {
 
     android.graphics.drawable.GradientDrawable dashed() {
         android.graphics.drawable.GradientDrawable g = T.round(T.SURFACE, 8);
-        g.setStroke(T.dp(2), 0x66FFC928, T.dpf(10), T.dpf(7)); return g;
+        g.setStroke(T.dp(2), 0x55FFFFFF, T.dpf(10), T.dpf(7)); return g;
     }
 
     LinearLayout round(int icon, boolean primary, final Runnable r) {
