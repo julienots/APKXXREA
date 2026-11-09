@@ -12,3 +12,5 @@ android/app/build/
 android/.gradle/
 android/local.properties
 android/app/src/main/assets/www/
+blaze-protect/*.p12
+blaze-protect/*.p12.pass

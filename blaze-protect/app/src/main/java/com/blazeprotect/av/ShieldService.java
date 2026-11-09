@@ -41,14 +41,7 @@ public class ShieldService extends Service {
     public void onCreate() {
         super.onCreate();
         Notifier.channels(this);
-        Notification n = Notifier.builder(this, Notifier.CH_SHIELD)
-                .setContentTitle("Protection active")
-                .setContentText("Installations et téléchargements surveillés en temps réel")
-                .setOngoing(true)
-                .setContentIntent(Notifier.activity(this, new Intent(this, MainActivity.class), 1))
-                .build();
-        if (Build.VERSION.SDK_INT >= 29) startForeground(Notifier.ID_SHIELD, n, FGS_SPECIAL_USE);
-        else startForeground(Notifier.ID_SHIELD, n);
+        goForeground();
 
         packages = new BroadcastReceiver() {
             @Override public void onReceive(Context context, Intent intent) {
@@ -73,9 +66,20 @@ public class ShieldService extends Service {
         Journal.log(this, Journal.INFO, "Protection en temps réel démarrée", null);
     }
 
+    private void goForeground() {
+        Notification n = Notifier.builder(this, Notifier.CH_SHIELD)
+                .setContentTitle("Protection active")
+                .setContentText("Installations et téléchargements surveillés en temps réel")
+                .setOngoing(true)
+                .setContentIntent(Notifier.activity(this, new Intent(this, MainActivity.class), 1))
+                .build();
+        if (Build.VERSION.SDK_INT >= 29) startForeground(Notifier.ID_SHIELD, n, FGS_SPECIAL_USE);
+        else startForeground(Notifier.ID_SHIELD, n);
+    }
+
     @SuppressWarnings("deprecation")
     private void startWatching() {
-        if (!Store.flag(this, Store.K_WATCH_DOWNLOADS, true)) return;
+        if (!Store.flag(this, Store.K_WATCH_DOWNLOADS, true) || !Perms.storage(this)) return;
         File root = Environment.getExternalStorageDirectory();
         File[] dirs = {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
@@ -134,6 +138,9 @@ public class ShieldService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        goForeground();
+        // Folders cannot be watched before storage access is granted: retry on every (re)start request.
+        if (observers.isEmpty()) startWatching();
         return START_STICKY;
     }
 
