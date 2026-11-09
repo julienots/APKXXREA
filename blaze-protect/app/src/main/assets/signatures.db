@@ -1,0 +1,11 @@
+# Blaze Protect — built-in signature database
+# Format:  sha256:<hex>|<detection name>   md5:<hex>|<name>   pkg:<package>|<name>
+# Additional hash lists can be imported from the app (Réglages > Base de signatures).
+
+# EICAR anti-malware test file (68-byte standard string)
+sha256:275a021bbfb6489e54d471899f7db9d1663fc695ec2fe2a2c4538aabf651fd0f|EICAR-Test-File
+md5:44d88612fea8a8f36de82e1278abb02f|EICAR-Test-File
+
+# Public offensive frameworks / open-source Android RATs (default package names)
+pkg:com.metasploit.stage|Android.Backdoor.Meterpreter
+pkg:ahmyth.mine.king.ahmyth|Android.RAT.AhMyth
